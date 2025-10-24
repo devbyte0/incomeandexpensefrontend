@@ -329,7 +329,7 @@ export class PDFGenerator {
                   <td>${transaction.title}</td>
                   <td>${transaction.category}</td>
                   <td class="amount ${transaction.type}">
-                    ${transaction.type === 'income' ? '+' : '-'}$${Math.abs(transaction.amount).toLocaleString())}
+                    ${transaction.type === 'income' ? '+' : '-'}$${Math.abs(transaction.amount).toLocaleString()}
                   </td>
                 </tr>
               `).join('')}
