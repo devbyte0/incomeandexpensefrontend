@@ -20,11 +20,6 @@ export interface User {
   createdAt: string
   updatedAt: string
 }
-export interface ChartData {
-  _id: string
-  total: number
-}
-
 
 export interface Category {
   _id: string
