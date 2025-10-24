@@ -16,8 +16,13 @@ import {
 } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell } from 'recharts'
 import toast from 'react-hot-toast'
+import PDFGeneratorComponent from '@/components/PDFGenerator'
+import DaySkyAnimation from '@/components/DaySkyAnimation'
+import StarfieldBackground from '@/components/StarfieldBackground'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function ReportsPage() {
+  const { user } = useAuth()
   const [selectedPeriod, setSelectedPeriod] = useState('month')
   const [reportType, setReportType] = useState('summary')
   const [startDate, setStartDate] = useState('')
@@ -86,21 +91,35 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 relative">
+      {/* Background Animations */}
+      {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
+      {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
+      
+      <div className="max-w-7xl mx-auto space-y-6 relative z-10">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Reports</h1>
             <p className="text-gray-600 dark:text-gray-300 mt-1">Generate detailed financial reports and insights</p>
           </div>
-          <button
-            onClick={exportReport}
-            className="btn btn-primary btn-md inline-flex items-center"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Export Report
-          </button>
+          <div className="flex gap-3">
+            <PDFGeneratorComponent
+              analyticsData={dashboardData}
+              transactionsData={trendsData}
+              categoriesData={categoryData}
+              period={selectedPeriod}
+              variant="modal"
+              className="w-full sm:w-auto"
+            />
+            <button
+              onClick={exportReport}
+              className="btn btn-secondary btn-md inline-flex items-center"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Export CSV
+            </button>
+          </div>
         </div>
 
         {/* Report Controls */}

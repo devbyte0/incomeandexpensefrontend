@@ -14,6 +14,9 @@ import {
   TrendingDown
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import DaySkyAnimation from '@/components/DaySkyAnimation'
+import StarfieldBackground from '@/components/StarfieldBackground'
+import { useAuth } from '@/contexts/AuthContext'
 
 const categoryIcons = [
   '💰', '💼', '🏠', '🍽️', '🚗', '🛍️', '🎬', '💡', '🏥', '📚', 
@@ -26,6 +29,7 @@ const categoryColors = [
 ]
 
 export default function CategoriesPage() {
+  const { user } = useAuth()
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingCategory, setEditingCategory] = useState<any>(null)
   const [formData, setFormData] = useState({
@@ -125,10 +129,16 @@ export default function CategoriesPage() {
 
   if (isPending) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="loading-spinner mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading categories...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 relative">
+        {/* Background Animations */}
+        {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
+        {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
+        
+        <div className="flex items-center justify-center min-h-[60vh] relative z-10">
+          <div className="text-center">
+            <div className="loading-spinner mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Loading categories...</p>
+          </div>
         </div>
       </div>
     )
@@ -136,8 +146,12 @@ export default function CategoriesPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
-        <div className="max-w-7xl mx-auto">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 relative">
+        {/* Background Animations */}
+        {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
+        {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
+        
+        <div className="max-w-7xl mx-auto relative z-10">
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
             <div className="text-6xl mb-4">⚠️</div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
@@ -162,8 +176,12 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 relative">
+      {/* Background Animations */}
+      {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
+      {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
+      
+      <div className="max-w-7xl mx-auto space-y-6 relative z-10">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>

@@ -16,6 +16,7 @@ import { AxiosResponse } from 'axios'
 import DaySkyAnimation from '@/components/DaySkyAnimation'
 import StarfieldBackground from '@/components/StarfieldBackground'
 import { useAuth } from '@/contexts/AuthContext'
+import PDFGeneratorComponent from '@/components/PDFGenerator'
 
 type DashboardResponse = {
   totalSales: number
@@ -130,9 +131,21 @@ export default function AnalyticsPage() {
       {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
       
       <div className="max-w-7xl mx-auto space-y-6 relative z-10">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Analytics Dashboard</h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-1">Track your financial performance and trends</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Analytics Dashboard</h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">Track your financial performance and trends</p>
+          </div>
+          <div className="mt-4 sm:mt-0">
+            <PDFGeneratorComponent
+              analyticsData={dashboardData}
+              transactionsData={trendsData}
+              categoriesData={categoryData}
+              period={selectedPeriod}
+              variant="dropdown"
+              className="w-full sm:w-auto"
+            />
+          </div>
         </div>
 
       {/* === Dashboard Summary === */}

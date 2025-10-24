@@ -8,8 +8,12 @@ import { Calendar, DollarSign, FileText, Tag, MapPin } from 'lucide-react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import toast from 'react-hot-toast'
+import DaySkyAnimation from '@/components/DaySkyAnimation'
+import StarfieldBackground from '@/components/StarfieldBackground'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function NewTransactionPage() {
+  const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const queryClient = useQueryClient()
@@ -82,8 +86,12 @@ export default function NewTransactionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 relative">
+      {/* Background Animations */}
+      {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
+      {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
+      
+      <div className="max-w-2xl mx-auto relative z-10">
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Add New Transaction</h1>
           <p className="text-gray-600 dark:text-gray-300">Record your income or expense</p>
