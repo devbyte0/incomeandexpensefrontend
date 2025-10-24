@@ -8,21 +8,19 @@ import {
   TrendingDown, 
   BarChart3, 
   PieChart,
+  Calendar,
+  Filter,
   Download
 } from 'lucide-react'
-import { 
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  PieChart as RechartsPieChart, Pie, Cell 
-} from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell, BarChart, Bar } from 'recharts'
 
 export default function AnalyticsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('month')
   const [selectedType, setSelectedType] = useState('expense')
 
-  // ✅ FIXED: Removed params wrapper
   const { data: dashboardData, isLoading: dashboardLoading } = useQuery(
     ['analytics-dashboard', selectedPeriod],
-    () => analyticsAPI.getDashboard({ period: selectedPeriod }),
+    () => analyticsAPI.getDashboard({ params: { period: selectedPeriod } }),
     {
       select: (response) => response.data.data,
     }
@@ -30,7 +28,7 @@ export default function AnalyticsPage() {
 
   const { data: trendsData, isLoading: trendsLoading } = useQuery(
     ['analytics-trends', selectedPeriod, selectedType],
-    () => analyticsAPI.getTrends({ period: selectedPeriod, type: selectedType }),
+    () => analyticsAPI.getTrends({ params: { period: selectedPeriod, type: selectedType } }),
     {
       select: (response) => response.data.data,
     }
@@ -38,7 +36,7 @@ export default function AnalyticsPage() {
 
   const { data: categoryData, isLoading: categoryLoading } = useQuery(
     ['analytics-categories', selectedPeriod],
-    () => analyticsAPI.getCategories({ period: selectedPeriod }),
+    () => analyticsAPI.getCategories({ params: { period: selectedPeriod } }),
     {
       select: (response) => response.data.data,
     }
@@ -103,7 +101,6 @@ export default function AnalyticsPage() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {/* Total Income */}
           <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
@@ -121,7 +118,6 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          {/* Total Expenses */}
           <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
@@ -139,7 +135,6 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          {/* Net Balance */}
           <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
@@ -163,7 +158,6 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          {/* Average Transaction */}
           <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
@@ -171,7 +165,9 @@ export default function AnalyticsPage() {
                 <p className="text-2xl sm:text-3xl font-bold text-primary-600 mt-1">
                   ${summary?.expense.average ? summary.expense.average.toFixed(0) : '0'}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">Per expense</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Per expense
+                </p>
               </div>
               <div className="h-12 w-12 bg-primary-100 rounded-lg flex items-center justify-center">
                 <PieChart className="h-6 w-6 text-primary-600" />
