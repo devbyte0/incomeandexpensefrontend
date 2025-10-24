@@ -1,0 +1,9 @@
+{
+  "/not-found": "app/not-found.js",
+  "/dashboard/analytics/page": "app/dashboard/analytics/page.js",
+  "/dashboard/transactions/new/page": "app/dashboard/transactions/new/page.js",
+  "/dashboard/transactions/page": "app/dashboard/transactions/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/categories/page": "app/dashboard/categories/page.js",
+  "/dashboard/profile/page": "app/dashboard/profile/page.js"
+}

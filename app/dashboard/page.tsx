@@ -1,0 +1,188 @@
+'use client'
+
+import { useQuery } from 'react-query'
+import { analyticsAPI, transactionsAPI } from '@/lib/api'
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  DollarSign, 
+  CreditCard,
+  ArrowUpRight,
+  ArrowDownRight
+} from 'lucide-react'
+import DashboardChart from '@/components/DashboardChart'
+import RecentTransactions from '@/components/RecentTransactions'
+import QuickActions from '@/components/QuickActions'
+
+export default function DashboardPage() {
+  const { data: analytics, isLoading: analyticsLoading } = useQuery(
+    'dashboard-analytics',
+    () => analyticsAPI.getDashboard({ period: 'month' }),
+    {
+      select: (response) => response.data.data,
+    }
+  )
+
+  const { data: recentTransactions, isLoading: transactionsLoading } = useQuery(
+    'recent-transactions',
+    () => transactionsAPI.getRecent({ limit: 5 }),
+    {
+      select: (response) => response.data.data.transactions,
+    }
+  )
+
+  if (analyticsLoading || transactionsLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="loading-spinner"></div>
+      </div>
+    )
+  }
+
+  const summary = analytics?.summary
+  const categoryBreakdown = analytics?.categoryBreakdown || []
+  const monthlyTrends = analytics?.monthlyTrends || []
+
+  return (
+    <div className="space-y-6">
+      {/* Page header */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
+        <p className="text-gray-600 dark:text-gray-400">Welcome back! Here's your financial overview.</p>
+      </div>
+
+      {/* Quick Actions */}
+      <QuickActions />
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="card dark:bg-gray-800 dark:border-gray-700">
+          <div className="card-content">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="h-8 w-8 rounded-md bg-success-100 dark:bg-success-800 flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 text-success-600 dark:text-success-400" />
+                </div>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Income</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                  ${summary?.income.total.toLocaleString() || '0'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="card dark:bg-gray-800 dark:border-gray-700">
+          <div className="card-content">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="h-8 w-8 rounded-md bg-danger-100 dark:bg-danger-800 flex items-center justify-center">
+                  <TrendingDown className="h-5 w-5 text-danger-600 dark:text-danger-400" />
+                </div>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Expenses</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                  ${summary?.expense.total.toLocaleString() || '0'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="card dark:bg-gray-800 dark:border-gray-700">
+          <div className="card-content">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className={`h-8 w-8 rounded-md flex items-center justify-center ${(summary?.net || 0) >= 0 ? 'bg-success-100 dark:bg-success-800' : 'bg-danger-100 dark:bg-danger-800'}`}>
+                  <DollarSign className={`h-5 w-5 ${(summary?.net || 0) >= 0 ? 'text-success-600 dark:text-success-400' : 'text-danger-600 dark:text-danger-400'}`} />
+                </div>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Net Balance</p>
+                <p className={`text-2xl font-semibold ${(summary?.net || 0) >= 0 ? 'text-success-600 dark:text-success-400' : 'text-danger-600 dark:text-danger-400'}`}>
+                  ${summary?.net.toLocaleString() || '0'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="card dark:bg-gray-800 dark:border-gray-700">
+          <div className="card-content">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="h-8 w-8 rounded-md bg-primary-100 dark:bg-primary-800 flex items-center justify-center">
+                  <CreditCard className="h-5 w-5 text-primary-600 dark:text-primary-300" />
+                </div>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Transactions</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                  {(summary?.income.count || 0) + (summary?.expense.count || 0)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts and Recent Transactions */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Monthly Trends Chart */}
+        <div className="card dark:bg-gray-800 dark:border-gray-700">
+          <div className="card-header">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Monthly Trends</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Income vs Expenses this month</p>
+          </div>
+          <div className="card-content">
+            <DashboardChart data={monthlyTrends} />
+          </div>
+        </div>
+
+        {/* Recent Transactions */}
+        <div className="card dark:bg-gray-800 dark:border-gray-700">
+          <div className="card-header">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Transactions</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Your latest financial activity</p>
+          </div>
+          <div className="card-content">
+            <RecentTransactions transactions={recentTransactions || []} />
+          </div>
+        </div>
+      </div>
+
+      {/* Category Breakdown */}
+      <div className="card dark:bg-gray-800 dark:border-gray-700">
+        <div className="card-header">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Category Breakdown</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Spending by category this month</p>
+        </div>
+        <div className="card-content">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {categoryBreakdown.slice(0, 6).map((category, index) => (
+              <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                <div className="flex items-center">
+                  <div
+                    className="h-10 w-10 rounded-full flex items-center justify-center text-white text-lg"
+                    style={{ backgroundColor: category.categoryColor }}
+                  >
+                    {category.categoryIcon}
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{category.categoryName}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{category.count} transactions</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    ${category.total.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
