@@ -11,12 +11,15 @@ import {
   Globe, 
   Palette,
   Bell,
-  Shield,
   Save,
   Camera,
-  Edit
+  Edit,
+  Sun,
+  Moon
 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import DaySkyAnimation from '@/components/DaySkyAnimation'
+import StarfieldBackground from '@/components/StarfieldBackground'
 
 function setThemeClass(theme: 'light' | 'dark') {
   if (theme === 'dark') {
@@ -39,11 +42,6 @@ export default function ProfilePage() {
 
   const [preferences, setPreferences] = useState({
     theme: user?.preferences?.theme || 'light',
-    notifications: {
-      email: user?.preferences?.notifications?.email ?? true,
-      push: user?.preferences?.notifications?.push ?? true,
-      weeklyReport: user?.preferences?.notifications?.weeklyReport ?? true
-    },
     budgetAlerts: user?.preferences?.budgetAlerts ?? true
   })
 
@@ -130,8 +128,12 @@ export default function ProfilePage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+      {/* Background Animations */}
+      {preferences.theme === 'light' && <DaySkyAnimation />}
+      {preferences.theme === 'dark' && <StarfieldBackground />}
+      
+      <div className="max-w-4xl mx-auto space-y-6 relative z-10">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -325,89 +327,45 @@ export default function ProfilePage() {
                   <button
                     type="button"
                     onClick={() => handlePreferenceChange('theme', 'light')}
-                    className={`flex-1 py-3 px-4 rounded-lg border-2 transition-colors ${
+                    className={`flex-1 py-4 px-4 rounded-lg border-2 transition-all duration-300 transform hover:scale-105 ${
                       preferences.theme === 'light'
-                        ? 'border-primary-300 bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-100'
-                        : 'border-gray-200 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
+                        ? 'border-primary-500 bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-100 shadow-lg'
+                        : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                   >
                     <div className="text-center">
-                      <div className="text-2xl mb-2">☀️</div>
+                      <Sun className={`h-6 w-6 mx-auto mb-2 ${
+                        preferences.theme === 'light' ? 'text-yellow-500' : 'text-gray-400'
+                      }`} />
                       <div className="font-medium">Light</div>
                     </div>
                   </button>
                   <button
                     type="button"
                     onClick={() => handlePreferenceChange('theme', 'dark')}
-                    className={`flex-1 py-3 px-4 rounded-lg border-2 transition-colors ${
+                    className={`flex-1 py-4 px-4 rounded-lg border-2 transition-all duration-300 transform hover:scale-105 ${
                       preferences.theme === 'dark'
-                        ? 'border-primary-300 bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-100'
-                        : 'border-gray-200 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
+                        ? 'border-primary-500 bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-100 shadow-lg'
+                        : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                   >
                     <div className="text-center">
-                      <div className="text-2xl mb-2">🌙</div>
+                      <Moon className={`h-6 w-6 mx-auto mb-2 ${
+                        preferences.theme === 'dark' ? 'text-blue-400' : 'text-gray-400'
+                      }`} />
                       <div className="font-medium">Dark</div>
                     </div>
                   </button>
                 </div>
               </div>
 
-              {/* Notifications */}
+              {/* Budget Alerts */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                   <Bell className="h-4 w-4 inline mr-2" />
-                  Notifications
+                  Budget Alerts
                 </label>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Email Notifications</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Receive updates via email</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={preferences.notifications.email}
-                        onChange={(e) => handlePreferenceChange('notifications.email', e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-800 after:border-gray-300 dark:after:border-gray-700 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                    </label>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Push Notifications</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Receive push notifications</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={preferences.notifications.push}
-                        onChange={(e) => handlePreferenceChange('notifications.push', e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-800 after:border-gray-300 dark:after:border-gray-700 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                    </label>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Weekly Reports</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Receive weekly financial summaries</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={preferences.notifications.weeklyReport}
-                        onChange={(e) => handlePreferenceChange('notifications.weeklyReport', e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-800 after:border-gray-300 dark:after:border-gray-700 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                    </label>
-                  </div>
-
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Budget Alerts</p>
@@ -446,50 +404,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Account Security */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Account Security</h2>
-          </div>
-          <div className="p-4 sm:p-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Email Verification</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {user?.isEmailVerified ? 'Your email is verified' : 'Please verify your email address'}
-                  </p>
-                </div>
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                  user?.isEmailVerified 
-                    ? 'bg-success-100 dark:bg-success-800 text-success-800 dark:text-success-100' 
-                    : 'bg-warning-100 dark:bg-warning-800 text-warning-800 dark:text-warning-100'
-                }`}>
-                  {user?.isEmailVerified ? 'Verified' : 'Pending'}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Last Login</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {user?.lastLogin 
-                      ? new Date(user.lastLogin).toLocaleString()
-                      : 'Never'
-                    }
-                  </p>
-                </div>
-                <Shield className="h-5 w-5 text-gray-400 dark:text-gray-200" />
-              </div>
-
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <button className="btn btn-secondary btn-md">
-                  Change Password
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )

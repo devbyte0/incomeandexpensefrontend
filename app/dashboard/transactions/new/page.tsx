@@ -175,11 +175,11 @@ export default function NewTransactionPage() {
             onChange={handleChange}
           >
             <option value="">Select a category</option>
-            {categories?.map((category: any) => (
+            {Array.isArray(categories) ? categories.map((category: any) => (
               <option key={category._id} value={category._id}>
                 {category.icon} {category.name}
               </option>
-            ))}
+            )) : null}
           </select>
         </div>
 

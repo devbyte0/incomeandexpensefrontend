@@ -13,12 +13,18 @@ import {
   ArrowDownRight,
   Edit,
   Trash2,
-  Eye
+  Eye,
+  X,
+  FileText
 } from 'lucide-react'
 import { Transaction } from '@/types'
 import toast from 'react-hot-toast'
+import DaySkyAnimation from '@/components/DaySkyAnimation'
+import StarfieldBackground from '@/components/StarfieldBackground'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function TransactionsPage() {
+  const { user } = useAuth()
   const [filters, setFilters] = useState({
     search: '',
     type: '',
@@ -26,6 +32,7 @@ export default function TransactionsPage() {
     limit: 20,
   })
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [viewTransaction, setViewTransaction] = useState<Transaction | null>(null)
 
   const queryClient = useQueryClient()
 
@@ -55,6 +62,10 @@ export default function TransactionsPage() {
     deleteMutation.mutate(id)
   }
 
+  const handleView = (transaction: Transaction) => {
+    setViewTransaction(transaction)
+  }
+
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({
       ...prev,
@@ -68,7 +79,10 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Background Animations */}
+      {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
+      {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -85,8 +99,8 @@ export default function TransactionsPage() {
       </div>
 
       {/* Filters */}
-      <div className="card">
-        <div className="card-content">
+      <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm-content">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search */}
             <div className="relative">
@@ -136,8 +150,8 @@ export default function TransactionsPage() {
       </div>
 
       {/* Transactions Table */}
-      <div className="card">
-        <div className="card-content p-0">
+      <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm-content p-0">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <div className="loading-spinner"></div>
@@ -221,6 +235,7 @@ export default function TransactionsPage() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
                             <button 
+                              onClick={() => handleView(transaction)}
                               className="text-primary-600 hover:text-primary-900 p-1 rounded"
                               title="View details"
                             >
@@ -351,6 +366,209 @@ export default function TransactionsPage() {
               >
                 {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Transaction Modal */}
+      {viewTransaction && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold text-gray-900">
+                Transaction Details
+              </h3>
+              <button
+                onClick={() => setViewTransaction(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Transaction Header */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-lg font-medium text-gray-900">
+                    {viewTransaction.title}
+                  </h4>
+                  {viewTransaction.description && (
+                    <p className="text-gray-600 mt-1">
+                      {viewTransaction.description}
+                    </p>
+                  )}
+                </div>
+                <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  viewTransaction.type === 'income' 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-red-100 text-red-800'
+                }`}>
+                  {viewTransaction.type === 'income' ? 'Income' : 'Expense'}
+                </div>
+              </div>
+
+              {/* Amount */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-500">Amount</span>
+                  <div className={`text-2xl font-bold ${
+                    viewTransaction.type === 'income' 
+                      ? 'text-green-600' 
+                      : 'text-red-600'
+                  }`}>
+                    ${viewTransaction.amount.toLocaleString()}
+                  </div>
+                </div>
+              </div>
+
+              {/* Details Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Category */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">
+                    Category
+                  </label>
+                  <div className="flex items-center">
+                    <div
+                      className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm mr-3"
+                      style={{ backgroundColor: viewTransaction.category.color }}
+                    >
+                      {viewTransaction.category.icon}
+                    </div>
+                    <span className="text-gray-900">
+                      {viewTransaction.category.name}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Date */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">
+                    Date
+                  </label>
+                  <p className="text-gray-900">
+                    {format(new Date(viewTransaction.date), 'MMMM dd, yyyy')}
+                  </p>
+                </div>
+
+                {/* Status */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">
+                    Status
+                  </label>
+                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                    viewTransaction.status === 'completed' 
+                      ? 'bg-green-100 text-green-800'
+                      : viewTransaction.status === 'pending'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {viewTransaction.status.charAt(0).toUpperCase() + viewTransaction.status.slice(1)}
+                  </span>
+                </div>
+
+                {/* Created At */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">
+                    Created
+                  </label>
+                  <p className="text-gray-900">
+                    {format(new Date(viewTransaction.createdAt), 'MMM dd, yyyy HH:mm')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Tags */}
+              {viewTransaction.tags && viewTransaction.tags.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">
+                    Tags
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {viewTransaction.tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Notes */}
+              {viewTransaction.notes && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">
+                    Notes
+                  </label>
+                  <p className="text-gray-900 bg-gray-50 rounded-lg p-3">
+                    {viewTransaction.notes}
+                  </p>
+                </div>
+              )}
+
+              {/* Recurring Info */}
+              {viewTransaction.isRecurring && viewTransaction.recurringPattern && (
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <h5 className="font-medium text-blue-900 mb-2">Recurring Transaction</h5>
+                  <div className="text-sm text-blue-800">
+                    <p>Frequency: {viewTransaction.recurringPattern.frequency}</p>
+                    <p>Interval: Every {viewTransaction.recurringPattern.interval} {viewTransaction.recurringPattern.frequency}</p>
+                    {viewTransaction.recurringPattern.nextDueDate && (
+                      <p>Next Due: {format(new Date(viewTransaction.recurringPattern.nextDueDate), 'MMM dd, yyyy')}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Attachments */}
+              {viewTransaction.attachments && viewTransaction.attachments.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">
+                    Attachments
+                  </label>
+                  <div className="space-y-2">
+                    {viewTransaction.attachments.map((attachment, index) => (
+                      <div key={index} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                        <div className="flex items-center">
+                          <FileText className="h-4 w-4 text-gray-400 mr-2" />
+                          <span className="text-sm text-gray-900">{attachment.filename}</span>
+                        </div>
+                        <a
+                          href={attachment.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary-600 hover:text-primary-800 text-sm"
+                        >
+                          View
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
+              <button
+                onClick={() => setViewTransaction(null)}
+                className="btn btn-secondary btn-md"
+              >
+                Close
+              </button>
+              <Link
+                href={`/dashboard/transactions/edit/${viewTransaction._id}`}
+                className="btn btn-primary btn-md"
+                onClick={() => setViewTransaction(null)}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Transaction
+              </Link>
             </div>
           </div>
         </div>

@@ -19,6 +19,8 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import clsx from 'clsx'
+import DaySkyAnimation from '@/components/DaySkyAnimation'
+import StarfieldBackground from '@/components/StarfieldBackground'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -38,17 +40,21 @@ export default function Sidebar() {
 
   return (
     <>
+      {/* Background Animations */}
+      {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
+      {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
+      
       {/* Mobile menu button */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
         <button
           type="button"
-          className="bg-white p-2 rounded-md shadow-md"
+          className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-2 rounded-md shadow-md border border-gray-200 dark:border-gray-700"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? (
-            <X className="h-6 w-6 text-gray-600" />
+            <X className="h-6 w-6 text-gray-600 dark:text-gray-300" />
           ) : (
-            <Menu className="h-6 w-6 text-gray-600" />
+            <Menu className="h-6 w-6 text-gray-600 dark:text-gray-300" />
           )}
         </button>
       </div>
@@ -64,7 +70,7 @@ export default function Sidebar() {
       {/* Sidebar */}
       <div
         className={clsx(
-          'fixed inset-y-0 left-0 z-50 w-64 sm:w-72 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0',
+          'fixed inset-y-0 left-0 z-50 w-64 sm:w-72 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0',
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >

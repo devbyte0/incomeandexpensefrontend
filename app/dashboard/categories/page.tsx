@@ -118,8 +118,8 @@ export default function CategoriesPage() {
     }
   }
 
-  const incomeCategories = categories?.filter((cat: any) => cat.type === 'income') || []
-  const expenseCategories = categories?.filter((cat: any) => cat.type === 'expense') || []
+  const incomeCategories = Array.isArray(categories) ? categories.filter((cat: any) => cat.type === 'income') : []
+  const expenseCategories = Array.isArray(categories) ? categories.filter((cat: any) => cat.type === 'expense') : []
 
   if (isPending) {
     return (

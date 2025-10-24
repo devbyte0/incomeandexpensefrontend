@@ -56,8 +56,8 @@ export default function ReportsPage() {
   }
 
   const summary = dashboardData?.summary
-  const trends = trendsData?.trends || []
-  const categoryAnalysis = categoryData?.categoryAnalysis || []
+  const trends = Array.isArray(trendsData?.trends) ? trendsData.trends : []
+  const categoryAnalysis = Array.isArray(categoryData?.categoryAnalysis) ? categoryData.categoryAnalysis : []
   const comparison = comparisonData?.comparison
 
   // Prepare chart data

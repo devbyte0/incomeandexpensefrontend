@@ -11,11 +11,16 @@ import {
 import DashboardChart from '@/components/DashboardChart'
 import RecentTransactions from '@/components/RecentTransactions'
 import QuickActions from '@/components/QuickActions'
+import DaySkyAnimation from '@/components/DaySkyAnimation'
+import StarfieldBackground from '@/components/StarfieldBackground'
+import { useAuth } from '@/contexts/AuthContext'
 
 // Import your types
 import type { Transaction, ChartData } from '@/types'
 
 export default function DashboardPage() {
+  const { user } = useAuth()
+  
   // Fetch analytics
   const { data: analytics, isLoading: analyticsLoading } = useQuery({
     queryKey: ['dashboard-analytics'],
@@ -53,8 +58,8 @@ export default function DashboardPage() {
   }
 
   const summary = analytics?.summary
-  const categoryBreakdown = analytics?.categoryBreakdown || []
-  const monthlyTrends = analytics?.monthlyTrends || []
+  const categoryBreakdown = Array.isArray(analytics?.categoryBreakdown) ? analytics.categoryBreakdown : []
+  const monthlyTrends = Array.isArray(analytics?.monthlyTrends) ? analytics.monthlyTrends : []
 
   // Transform monthlyTrends to match ChartData type
   const chartData: ChartData[] = monthlyTrends.map((trend: ChartData) => ({
@@ -63,7 +68,10 @@ export default function DashboardPage() {
   }))
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Background Animations */}
+      {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
+      {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
       {/* Page header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
@@ -76,7 +84,7 @@ export default function DashboardPage() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Income */}
-        <div className="card dark:bg-gray-800 dark:border-gray-700">
+        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm dark:border-gray-700">
           <div className="card-content">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -95,7 +103,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Total Expenses */}
-        <div className="card dark:bg-gray-800 dark:border-gray-700">
+        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm dark:border-gray-700">
           <div className="card-content">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -114,7 +122,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Net Balance */}
-        <div className="card dark:bg-gray-800 dark:border-gray-700">
+        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm dark:border-gray-700">
           <div className="card-content">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -133,7 +141,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Transactions Count */}
-        <div className="card dark:bg-gray-800 dark:border-gray-700">
+        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm dark:border-gray-700">
           <div className="card-content">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -155,7 +163,7 @@ export default function DashboardPage() {
       {/* Charts and Recent Transactions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Monthly Trends Chart */}
-        <div className="card dark:bg-gray-800 dark:border-gray-700">
+        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm dark:border-gray-700">
           <div className="card-header">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Monthly Trends</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">Income vs Expenses this month</p>
@@ -166,7 +174,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Transactions */}
-        <div className="card dark:bg-gray-800 dark:border-gray-700">
+        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm dark:border-gray-700">
           <div className="card-header">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Transactions</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">Your latest financial activity</p>
@@ -178,7 +186,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Category Breakdown */}
-      <div className="card dark:bg-gray-800 dark:border-gray-700">
+      <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm dark:border-gray-700">
         <div className="card-header">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Category Breakdown</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">Spending by category this month</p>

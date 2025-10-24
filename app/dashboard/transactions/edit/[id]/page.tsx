@@ -35,10 +35,10 @@ export default function EditTransactionPage() {
   const { data: categoriesData } = useQuery({
     queryKey: ['categories'],
     queryFn: () => categoriesAPI.getCategories(),
-    select: (response) => response.data.data,
+    select: (response) => response.data.data.categories,
   })
 
-  const categories = categoriesData || []
+  const categories = Array.isArray(categoriesData) ? categoriesData : []
 
   // Update form when transaction data loads
   useEffect(() => {

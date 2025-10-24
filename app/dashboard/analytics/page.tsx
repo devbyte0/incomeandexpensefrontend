@@ -13,6 +13,9 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { AxiosResponse } from 'axios'
+import DaySkyAnimation from '@/components/DaySkyAnimation'
+import StarfieldBackground from '@/components/StarfieldBackground'
+import { useAuth } from '@/contexts/AuthContext'
 
 type DashboardResponse = {
   totalSales: number
@@ -32,6 +35,7 @@ type CategoryItem = {
 }
 
 export default function AnalyticsPage() {
+  const { user } = useAuth()
   const [selectedPeriod, setSelectedPeriod] = useState('month')
   const [selectedType, setSelectedType] = useState('sales')
 
@@ -81,7 +85,10 @@ export default function AnalyticsPage() {
   }))
 
   return (
-    <div className="p-6">
+    <div className="p-6 relative">
+      {/* Background Animations */}
+      {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
+      {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
       <h1 className="text-3xl font-bold mb-6">Analytics Dashboard</h1>
 
       {/* === Dashboard Summary === */}

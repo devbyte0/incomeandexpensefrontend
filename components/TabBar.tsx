@@ -16,6 +16,8 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 import clsx from 'clsx'
 import { useState } from 'react'
+import DaySkyAnimation from '@/components/DaySkyAnimation'
+import StarfieldBackground from '@/components/StarfieldBackground'
 
 // Main navigation items (always visible)
 const mainNavigation = [
@@ -40,8 +42,12 @@ export default function TabBar() {
 
   return (
     <>
+      {/* Background Animations */}
+      {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
+      {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
+      
       {/* Mobile Tab Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-t border-gray-200 dark:border-gray-700 shadow-lg">
         <div className="flex items-center justify-around h-16 px-2">
           {mainNavigation.map((item) => {
             const isActive = pathname === item.href
@@ -148,7 +154,7 @@ export default function TabBar() {
       </div>
 
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block fixed inset-y-0 left-0 z-50 w-64 sm:w-72 bg-white shadow-lg">
+      <div className="hidden lg:block fixed inset-y-0 left-0 z-50 w-64 sm:w-72 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg border-r border-gray-200 dark:border-gray-700">
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center justify-center h-16 px-4 bg-primary-600">
