@@ -95,7 +95,7 @@ export default function DashboardPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Income</p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                  ${summary?.income.total.toLocaleString() || '0'}
+                  ${summary?.income?.total?.toLocaleString() ?? '0'}
                 </p>
               </div>
             </div>
@@ -114,7 +114,7 @@ export default function DashboardPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Expenses</p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                  ${summary?.expense.total.toLocaleString() || '0'}
+                  ${summary?.expense?.total?.toLocaleString() ?? '0'}
                 </p>
               </div>
             </div>
@@ -133,7 +133,7 @@ export default function DashboardPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Net Balance</p>
                 <p className={`text-2xl font-semibold ${(summary?.net || 0) >= 0 ? 'text-success-600 dark:text-success-400' : 'text-danger-600 dark:text-danger-400'}`}>
-                  ${summary?.net.toLocaleString() || '0'}
+                  ${summary?.net?.toLocaleString() ?? '0'}
                 </p>
               </div>
             </div>
@@ -152,7 +152,7 @@ export default function DashboardPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Transactions</p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                  {(summary?.income.count || 0) + (summary?.expense.count || 0)}
+                  {(summary?.income?.count || 0) + (summary?.expense?.count || 0)}
                 </p>
               </div>
             </div>
@@ -193,7 +193,7 @@ export default function DashboardPage() {
         </div>
         <div className="card-content">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {categoryBreakdown.slice(0, 6).map((category: {
+            {Array.isArray(categoryBreakdown) ? categoryBreakdown.slice(0, 6).map((category: {
               categoryName: string;
               categoryIcon: string;
               categoryColor: string;
@@ -201,7 +201,7 @@ export default function DashboardPage() {
               total: number;
               count: number;
             }, index: number) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+              <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <div className="flex items-center">
                   <div
                     className="h-10 w-10 rounded-full flex items-center justify-center text-white text-lg"
@@ -220,7 +220,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-            ))}
+            )) : null}
           </div>
         </div>
       </div>
