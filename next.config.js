@@ -4,7 +4,7 @@ const nextConfig = {
     domains: ['res.cloudinary.com', 'via.placeholder.com'],
   },
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://incomeandexpensebackend.vercel.app/api',
   },
 }
 

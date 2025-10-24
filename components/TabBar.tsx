@@ -101,7 +101,7 @@ export default function TabBar() {
                 />
                 
                 {/* Menu */}
-                <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-[60vh] overflow-y-auto">
+                <div className="absolute bottom-full right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-[60vh] overflow-y-auto min-w-[200px]">
                   <div className="py-2">
                     {additionalNavigation.map((item) => {
                       const isActive = pathname === item.href

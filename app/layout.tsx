@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   keywords: ['income', 'expense', 'tracking', 'finance', 'budget'],
   authors: [{ name: 'Income Expense App' }],
   viewport: 'width=device-width, initial-scale=1',
+  icons: {
+    icon: '/Income&Expence.png',
+    shortcut: '/Income&Expence.png',
+    apple: '/Income&Expence.png',
+  },
 }
 
 export default function RootLayout({

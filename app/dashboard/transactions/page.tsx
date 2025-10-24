@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { transactionsAPI } from '@/lib/api'
 import { format } from 'date-fns'
 import { 
@@ -16,6 +16,7 @@ import {
   Eye
 } from 'lucide-react'
 import { Transaction } from '@/types'
+import toast from 'react-hot-toast'
 
 export default function TransactionsPage() {
   const [filters, setFilters] = useState({
@@ -24,6 +25,9 @@ export default function TransactionsPage() {
     page: 1,
     limit: 20,
   })
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+
+  const queryClient = useQueryClient()
 
   const { data: transactionsData, isLoading } = useQuery({
     queryKey: ['transactions', filters],
@@ -33,6 +37,23 @@ export default function TransactionsPage() {
 
   const transactions = transactionsData?.transactions || []
   const pagination = transactionsData?.pagination
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => transactionsAPI.deleteTransaction(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      toast.success('Transaction deleted successfully')
+      setDeleteConfirm(null)
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to delete transaction')
+    },
+  })
+
+  const handleDelete = (id: string) => {
+    deleteMutation.mutate(id)
+  }
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({
@@ -199,13 +220,25 @@ export default function TransactionsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
-                            <button className="text-primary-600 hover:text-primary-900">
+                            <button 
+                              className="text-primary-600 hover:text-primary-900 p-1 rounded"
+                              title="View details"
+                            >
                               <Eye className="h-4 w-4" />
                             </button>
-                            <button className="text-gray-600 hover:text-gray-900">
+                            <Link
+                              href={`/dashboard/transactions/edit/${transaction._id}`}
+                              className="text-gray-600 hover:text-gray-900 p-1 rounded"
+                              title="Edit transaction"
+                            >
                               <Edit className="h-4 w-4" />
-                            </button>
-                            <button className="text-danger-600 hover:text-danger-900">
+                            </Link>
+                            <button 
+                              onClick={() => setDeleteConfirm(transaction._id)}
+                              className="text-danger-600 hover:text-danger-900 p-1 rounded"
+                              title="Delete transaction"
+                              disabled={deleteMutation.isPending}
+                            >
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
@@ -292,6 +325,36 @@ export default function TransactionsPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Delete Transaction
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to delete this transaction? This action cannot be undone.
+            </p>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                disabled={deleteMutation.isPending}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(deleteConfirm)}
+                className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
