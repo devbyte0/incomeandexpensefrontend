@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { transactionsAPI } from '@/lib/api'
 import { format } from 'date-fns'
 import { 
@@ -25,13 +25,11 @@ export default function TransactionsPage() {
     limit: 20,
   })
 
-  const { data: transactionsData, isLoading } = useQuery(
-    ['transactions', filters],
-    () => transactionsAPI.getTransactions(filters),
-    {
-      select: (response) => response.data.data,
-    }
-  )
+  const { data: transactionsData, isLoading } = useQuery({
+    queryKey: ['transactions', filters],
+    queryFn: () => transactionsAPI.getTransactions(filters),
+    select: (response) => response.data.data,
+  })
 
   const transactions = transactionsData?.transactions || []
   const pagination = transactionsData?.pagination

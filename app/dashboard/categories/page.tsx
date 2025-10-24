@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { categoriesAPI } from '@/lib/api'
 import { 
   Plus, 
@@ -27,7 +27,7 @@ const categoryColors = [
 
 export default function CategoriesPage() {
   const [showAddModal, setShowAddModal] = useState(false)
-  const [editingCategory, setEditingCategory] = useState(null)
+  const [editingCategory, setEditingCategory] = useState<any>(null)
   const [formData, setFormData] = useState({
     name: '',
     type: 'expense',
@@ -38,56 +38,48 @@ export default function CategoriesPage() {
 
   const queryClient = useQueryClient()
 
-  const { data: categories, isLoading } = useQuery(
-    'categories',
-    () => categoriesAPI.getCategories(),
-    {
-      select: (response) => response.data.data.categories,
-    }
-  )
+  const { data: categories, isPending } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => categoriesAPI.getCategories(),
+    select: (response) => response.data.data.categories,
+  })
 
-  const createCategoryMutation = useMutation(
-    (data) => categoriesAPI.createCategory(data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('categories')
-        toast.success('Category created successfully!')
-        setShowAddModal(false)
-        resetForm()
-      },
-      onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to create category')
-      },
-    }
-  )
+  const createCategoryMutation = useMutation({
+    mutationFn: (data: any) => categoriesAPI.createCategory(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] })
+      toast.success('Category created successfully!')
+      setShowAddModal(false)
+      resetForm()
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to create category')
+    },
+  })
 
-  const updateCategoryMutation = useMutation(
-    ({ id, data }) => categoriesAPI.updateCategory(id, data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('categories')
-        toast.success('Category updated successfully!')
-        setEditingCategory(null)
-        resetForm()
-      },
-      onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to update category')
-      },
-    }
-  )
+  const updateCategoryMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => categoriesAPI.updateCategory(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] })
+      toast.success('Category updated successfully!')
+      setEditingCategory(null)
+      resetForm()
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to update category')
+    },
+  })
 
-  const deleteCategoryMutation = useMutation(
-    (id) => categoriesAPI.deleteCategory(id),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('categories')
-        toast.success('Category deleted successfully!')
-      },
-      onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to delete category')
-      },
-    }
-  )
+  const deleteCategoryMutation = useMutation({
+    mutationFn: (id: string) => categoriesAPI.deleteCategory(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] })
+      toast.success('Category deleted successfully!')
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to delete category')
+    },
+  })
 
   const resetForm = () => {
     setFormData({
@@ -99,7 +91,7 @@ export default function CategoriesPage() {
     })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (editingCategory) {
       updateCategoryMutation.mutate({ id: editingCategory._id, data: formData })
@@ -108,7 +100,7 @@ export default function CategoriesPage() {
     }
   }
 
-  const handleEdit = (category) => {
+  const handleEdit = (category: any) => {
     setEditingCategory(category)
     setFormData({
       name: category.name,
@@ -120,16 +112,16 @@ export default function CategoriesPage() {
     setShowAddModal(true)
   }
 
-  const handleDelete = (category) => {
+  const handleDelete = (category: any) => {
     if (window.confirm(`Are you sure you want to delete "${category.name}"?`)) {
       deleteCategoryMutation.mutate(category._id)
     }
   }
 
-  const incomeCategories = categories?.filter(cat => cat.type === 'income') || []
-  const expenseCategories = categories?.filter(cat => cat.type === 'expense') || []
+  const incomeCategories = categories?.filter((cat: any) => cat.type === 'income') || []
+  const expenseCategories = categories?.filter((cat: any) => cat.type === 'expense') || []
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="loading-spinner"></div>
@@ -179,7 +171,7 @@ export default function CategoriesPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {incomeCategories.map((category) => (
+                {incomeCategories.map((category: any) => (
                   <div
                     key={category._id}
                     className="relative group p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
@@ -244,7 +236,7 @@ export default function CategoriesPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {expenseCategories.map((category) => (
+                {expenseCategories.map((category: any) => (
                   <div
                     key={category._id}
                     className="relative group p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
@@ -402,10 +394,10 @@ export default function CategoriesPage() {
                   <div className="flex space-x-3 pt-4">
                     <button
                       type="submit"
-                      disabled={createCategoryMutation.isLoading || updateCategoryMutation.isLoading}
+                      disabled={createCategoryMutation.isPending || updateCategoryMutation.isPending}
                       className="btn btn-primary btn-md flex-1"
                     >
-                      {createCategoryMutation.isLoading || updateCategoryMutation.isLoading ? (
+                      {createCategoryMutation.isPending || updateCategoryMutation.isPending ? (
                         <div className="loading-spinner"></div>
                       ) : (
                         editingCategory ? 'Update Category' : 'Create Category'

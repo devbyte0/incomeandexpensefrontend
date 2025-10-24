@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { analyticsAPI, transactionsAPI } from '@/lib/api'
 import { 
   TrendingUp, 
@@ -17,20 +17,20 @@ import type { Transaction, ChartData } from '@/types'
 
 export default function DashboardPage() {
   // Fetch analytics
-  const { data: analytics, isLoading: analyticsLoading } = useQuery(
-    'dashboard-analytics',
-    async () => {
+  const { data: analytics, isLoading: analyticsLoading } = useQuery({
+    queryKey: ['dashboard-analytics'],
+    queryFn: async () => {
       const res = await analyticsAPI.getDashboard({ period: 'month' })
       return res.data.data
     }
-  )
+  })
 
   // Fetch recent transactions
-  const { data: recentTransactions, isLoading: transactionsLoading } = useQuery<Transaction[]>(
-    'recent-transactions',
-    async () => {
+  const { data: recentTransactions, isLoading: transactionsLoading } = useQuery<Transaction[]>({
+    queryKey: ['recent-transactions'],
+    queryFn: async () => {
       const res = await transactionsAPI.getRecent({ limit: 5 })
-      return res.data.data.transactions.map((tx: any) => ({
+      return res.data.data.transactions.map((tx: Transaction) => ({
         _id: tx._id,
         title: tx.title || '',
         user: tx.user || '',
@@ -42,7 +42,7 @@ export default function DashboardPage() {
         date: tx.date,
       }))
     }
-  )
+  })
 
   if (analyticsLoading || transactionsLoading) {
     return (
@@ -57,9 +57,9 @@ export default function DashboardPage() {
   const monthlyTrends = analytics?.monthlyTrends || []
 
   // Transform monthlyTrends to match ChartData type
-  const chartData: ChartData[] = monthlyTrends.map((trend: any) => ({
-    _id: trend.month,
-    total: trend.income - trend.expense,
+  const chartData: ChartData[] = monthlyTrends.map((trend: ChartData) => ({
+    _id: trend._id,
+    total: trend.total,
   }))
 
   return (
@@ -185,7 +185,14 @@ export default function DashboardPage() {
         </div>
         <div className="card-content">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {categoryBreakdown.slice(0, 6).map((category: any, index: number) => (
+            {categoryBreakdown.slice(0, 6).map((category: {
+              categoryName: string;
+              categoryIcon: string;
+              categoryColor: string;
+              categoryType: 'income' | 'expense';
+              total: number;
+              count: number;
+            }, index: number) => (
               <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
                 <div className="flex items-center">
                   <div

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { usersAPI } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { 
@@ -49,53 +49,49 @@ export default function ProfilePage() {
 
   const queryClient = useQueryClient()
 
-  const updateProfileMutation = useMutation(
-    (data) => usersAPI.updateProfile(data),
-    {
-      onSuccess: (response) => {
-        updateUser(response.data.data.user)
-        queryClient.invalidateQueries('user-profile')
-        toast.success('Profile updated successfully!')
-        setIsEditing(false)
-      },
-      onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to update profile')
-      },
-    }
-  )
+  const updateProfileMutation = useMutation({
+    mutationFn: (data: any) => usersAPI.updateProfile(data),
+    onSuccess: (response) => {
+      updateUser(response.data.data.user)
+      queryClient.invalidateQueries({ queryKey: ['user-profile'] })
+      toast.success('Profile updated successfully!')
+      setIsEditing(false)
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to update profile')
+    },
+  })
 
-  const updatePreferencesMutation = useMutation(
-    (data) => usersAPI.updatePreferences(data),
-    {
-      onSuccess: (response) => {
-        updateUser(response.data.data.user)
-        queryClient.invalidateQueries('user-profile')
-        toast.success('Preferences updated successfully!')
-      },
-      onError: (error) => {
-        toast.error(error.response?.data?.message || 'Failed to update preferences')
-      },
-    }
-  )
+  const updatePreferencesMutation = useMutation({
+    mutationFn: (data: any) => usersAPI.updatePreferences(data),
+    onSuccess: (response) => {
+      updateUser(response.data.data.user)
+      queryClient.invalidateQueries({ queryKey: ['user-profile'] })
+      toast.success('Preferences updated successfully!')
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to update preferences')
+    },
+  })
 
-  const handleProfileSubmit = (e) => {
+  const handleProfileSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     updateProfileMutation.mutate(formData)
   }
 
-  const handlePreferencesSubmit = (e) => {
+  const handlePreferencesSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     updatePreferencesMutation.mutate({ preferences })
   }
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     })
   }
 
-  const handlePreferenceChange = (path, value) => {
+  const handlePreferenceChange = (path: string, value: any) => {
     if (path === 'theme') {
       setThemeClass(value);
     }
@@ -104,7 +100,7 @@ export default function ProfilePage() {
       setPreferences({
         ...preferences,
         [parent]: {
-          ...preferences[parent],
+          ...(preferences as any)[parent],
           [child]: value
         }
       })
@@ -187,7 +183,7 @@ export default function ProfilePage() {
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{user?.name}</h3>
                   <p className="text-gray-600 dark:text-gray-300">{user?.email}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Member since {new Date(user?.createdAt).toLocaleDateString()}
+                    Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}
                   </p>
                 </div>
               </div>
@@ -294,10 +290,10 @@ export default function ProfilePage() {
                   </button>
                   <button
                     type="submit"
-                    disabled={updateProfileMutation.isLoading}
+                    disabled={updateProfileMutation.isPending}
                     className="btn btn-primary btn-md inline-flex items-center"
                   >
-                    {updateProfileMutation.isLoading ? (
+                    {updateProfileMutation.isPending ? (
                       <div className="loading-spinner"></div>
                     ) : (
                       <>
@@ -433,10 +429,10 @@ export default function ProfilePage() {
               <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
                 <button
                   type="submit"
-                  disabled={updatePreferencesMutation.isLoading}
+                  disabled={updatePreferencesMutation.isPending}
                   className="btn btn-primary btn-md inline-flex items-center"
                 >
-                  {updatePreferencesMutation.isLoading ? (
+                  {updatePreferencesMutation.isPending ? (
                     <div className="loading-spinner"></div>
                   ) : (
                     <>

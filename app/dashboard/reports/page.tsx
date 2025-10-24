@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { analyticsAPI, transactionsAPI } from '@/lib/api'
 import { 
   Download, 
@@ -23,37 +23,29 @@ export default function ReportsPage() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
 
-  const { data: dashboardData, isLoading: dashboardLoading } = useQuery(
-    ['reports-dashboard', selectedPeriod],
-    () => analyticsAPI.getDashboard({ params: { period: selectedPeriod } }),
-    {
-      select: (response) => response.data.data,
-    }
-  )
+  const { data: dashboardData, isLoading: dashboardLoading } = useQuery({
+    queryKey: ['reports-dashboard', selectedPeriod],
+    queryFn: () => analyticsAPI.getDashboard({ period: selectedPeriod }),
+    select: (response) => response.data.data,
+  })
 
-  const { data: trendsData, isLoading: trendsLoading } = useQuery(
-    ['reports-trends', selectedPeriod],
-    () => analyticsAPI.getTrends({ params: { period: selectedPeriod } }),
-    {
-      select: (response) => response.data.data,
-    }
-  )
+  const { data: trendsData, isLoading: trendsLoading } = useQuery({
+    queryKey: ['reports-trends', selectedPeriod],
+    queryFn: () => analyticsAPI.getTrends({ period: selectedPeriod }),
+    select: (response) => response.data.data,
+  })
 
-  const { data: categoryData, isLoading: categoryLoading } = useQuery(
-    ['reports-categories', selectedPeriod],
-    () => analyticsAPI.getCategories({ params: { period: selectedPeriod } }),
-    {
-      select: (response) => response.data.data,
-    }
-  )
+  const { data: categoryData, isLoading: categoryLoading } = useQuery({
+    queryKey: ['reports-categories', selectedPeriod],
+    queryFn: () => analyticsAPI.getCategories({ period: selectedPeriod }),
+    select: (response) => response.data.data,
+  })
 
-  const { data: comparisonData, isLoading: comparisonLoading } = useQuery(
-    'reports-comparison',
-    () => analyticsAPI.getComparison(),
-    {
-      select: (response) => response.data.data,
-    }
-  )
+  const { data: comparisonData, isLoading: comparisonLoading } = useQuery({
+    queryKey: ['reports-comparison'],
+    queryFn: () => analyticsAPI.getComparison(),
+    select: (response) => response.data.data,
+  })
 
   if (dashboardLoading || trendsLoading || categoryLoading || comparisonLoading) {
     return (
@@ -69,19 +61,19 @@ export default function ReportsPage() {
   const comparison = comparisonData?.comparison
 
   // Prepare chart data
-  const trendsChartData = trends.map(item => ({
+  const trendsChartData = trends.map((item: any) => ({
     month: `${item._id.year}-${item._id.month.toString().padStart(2, '0')}`,
     amount: item.total,
     count: item.count
   }))
 
-  const pieChartData = categoryAnalysis.slice(0, 6).map(category => ({
+  const pieChartData = categoryAnalysis.slice(0, 6).map((category: any) => ({
     name: category.categoryName,
     value: category.total,
     color: category.categoryColor
   }))
 
-  const COLORS = pieChartData.map(item => item.color)
+  const COLORS = pieChartData.map((item: any) => item.color)
 
   const exportReport = () => {
     // In a real app, this would generate and download a PDF/CSV
@@ -338,7 +330,7 @@ export default function ReportsPage() {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {pieChartData.map((entry, index) => (
+                    {pieChartData.map((entry: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -376,7 +368,7 @@ export default function ReportsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {categoryAnalysis.map((category, index) => (
+                {categoryAnalysis.map((category: any, index: number) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">

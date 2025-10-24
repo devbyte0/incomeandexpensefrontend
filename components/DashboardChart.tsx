@@ -17,7 +17,12 @@ interface DashboardChartProps {
 
 export default function DashboardChart({ data }: DashboardChartProps) {
   // Transform data for the chart
-  const chartData = data.reduce((acc: any[], item) => {
+  const chartData = data.reduce((acc: Array<{
+    month: string;
+    income: number;
+    expense: number;
+    [key: string]: any;
+  }>, item) => {
     const monthKey = `${item._id.year}-${item._id.month.toString().padStart(2, '0')}`
     const existingItem = acc.find(d => d.month === monthKey)
     

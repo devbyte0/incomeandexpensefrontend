@@ -6,8 +6,9 @@ export default function StarfieldBackground() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
     let width = window.innerWidth;
     let height = window.innerHeight;
@@ -16,12 +17,12 @@ export default function StarfieldBackground() {
     function resize() {
       width = window.innerWidth;
       height = window.innerHeight;
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-      canvas.style.width = width + "px";
-      canvas.style.height = height + "px";
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.scale(dpr, dpr);
+      canvas!.width = width * dpr;
+      canvas!.height = height * dpr;
+      canvas!.style.width = width + "px";
+      canvas!.style.height = height + "px";
+      ctx!!.setTransform(1, 0, 0, 1, 0, 0);
+      ctx!!.scale(dpr, dpr);
     }
 
     // Generate and animate multiple small stars
@@ -35,26 +36,26 @@ export default function StarfieldBackground() {
     }));
 
     function animate() {
-      ctx.clearRect(0, 0, width, height);
-      ctx.save();
+      ctx!.clearRect(0, 0, width, height);
+      ctx!.save();
       // Cosmic gradient background
-      const grad = ctx.createLinearGradient(0,0,width,height);
+      const grad = ctx!.createLinearGradient(0,0,width,height);
       grad.addColorStop(0, '#05203a');
       grad.addColorStop(1, '#0b0d21');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0,0,width,height);
-      ctx.restore();
+      ctx!.fillStyle = grad;
+      ctx!.fillRect(0,0,width,height);
+      ctx!.restore();
       // Draw stars
       for (let star of stars) {
-        ctx.save();
-        ctx.globalAlpha = star.alpha;
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.r, 0, Math.PI*2);
-        ctx.fillStyle = '#fff';
-        ctx.shadowColor = '#88e1ff';
-        ctx.shadowBlur = 18;
-        ctx.fill();
-        ctx.restore();
+        ctx!!.save();
+        ctx!!.globalAlpha = star.alpha;
+        ctx!!.beginPath();
+        ctx!!.arc(star.x, star.y, star.r, 0, Math.PI*2);
+        ctx!!.fillStyle = '#fff';
+        ctx!!.shadowColor = '#88e1ff';
+        ctx!!.shadowBlur = 18;
+        ctx!!.fill();
+        ctx!!.restore();
         // Animate stars (drift slowly)
         star.y += star.speed;
         if (star.y > height+2) star.y = -2;

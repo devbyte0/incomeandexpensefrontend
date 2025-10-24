@@ -31,14 +31,14 @@ export default function SettingsPage() {
     confirm: false
   })
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPasswordData({
       ...passwordData,
       [e.target.name]: e.target.value
     })
   }
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
     if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -70,10 +70,10 @@ export default function SettingsPage() {
     }
   }
 
-  const togglePasswordVisibility = (field) => {
+  const togglePasswordVisibility = (field: string) => {
     setShowPasswords({
       ...showPasswords,
-      [field]: !showPasswords[field]
+      [field]: !(showPasswords as any)[field]
     })
   }
 

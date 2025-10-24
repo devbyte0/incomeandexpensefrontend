@@ -139,6 +139,16 @@ export interface PaginatedResponse<T> {
   success: boolean
   data: {
     [key: string]: T[]
+  } & {
     pagination: PaginationInfo
   }
+}
+
+export interface ChartData {
+  _id: {
+    year: number
+    month: number
+    type: 'income' | 'expense'
+  }
+  total: number
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { categoriesAPI, transactionsAPI } from '@/lib/api'
 import { Calendar, DollarSign, FileText, Tag, MapPin } from 'lucide-react'
 import DatePicker from 'react-datepicker'
@@ -28,30 +28,26 @@ export default function NewTransactionPage() {
   const [loading, setLoading] = useState(false)
 
   // Fetch categories
-  const { data: categories } = useQuery(
-    'categories',
-    () => categoriesAPI.getCategories({ params: { type: formData.type } }),
-    {
-      select: (response) => response.data.data.categories,
-    }
-  )
+  const { data: categories } = useQuery({
+    queryKey: ['categories', formData.type],
+    queryFn: () => categoriesAPI.getCategories({ type: formData.type }),
+    select: (response) => response.data.data.categories,
+  })
 
   // Create transaction mutation
-  const createTransactionMutation = useMutation(
-    (data: any) => transactionsAPI.createTransaction(data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('transactions')
-        queryClient.invalidateQueries('dashboard-analytics')
-        queryClient.invalidateQueries('recent-transactions')
-        toast.success('Transaction created successfully!')
-        router.push('/dashboard/transactions')
-      },
-      onError: (error: any) => {
-        toast.error(error.response?.data?.message || 'Failed to create transaction')
-      },
-    }
-  )
+  const createTransactionMutation = useMutation({
+    mutationFn: (data: any) => transactionsAPI.createTransaction(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard-analytics'] })
+      queryClient.invalidateQueries({ queryKey: ['recent-transactions'] })
+      toast.success('Transaction created successfully!')
+      router.push('/dashboard/transactions')
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to create transaction')
+    },
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -193,6 +189,7 @@ export default function NewTransactionPage() {
             Date *
           </label>
           <div className="relative">
+            {/* @ts-ignore */}
             <DatePicker
               selected={formData.date}
               onChange={(date: Date) => setFormData({ ...formData, date })}
