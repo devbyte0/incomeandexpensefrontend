@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { usersAPI } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { 
@@ -12,7 +12,6 @@ import {
   Palette,
   Bell,
   Save,
-  Camera,
   Edit,
   Sun,
   Moon
@@ -20,7 +19,6 @@ import {
 import toast from 'react-hot-toast'
 import DaySkyAnimation from '@/components/DaySkyAnimation'
 import StarfieldBackground from '@/components/StarfieldBackground'
-import ProfileAvatarCropper from '@/components/ProfileAvatarCropper';
 
 function setThemeClass(theme: 'light' | 'dark') {
   if (theme === 'dark') {
@@ -45,10 +43,6 @@ export default function ProfilePage() {
     theme: user?.preferences?.theme || 'light',
     budgetAlerts: user?.preferences?.budgetAlerts ?? true
   })
-
-  const [avatarSrc, setAvatarSrc] = useState<string | null>(null);
-  const [croppedAvatar, setCroppedAvatar] = useState<string | null>(null);
-  const [showCropper, setShowCropper] = useState(false);
 
   const queryClient = useQueryClient()
 
@@ -81,7 +75,7 @@ export default function ProfilePage() {
 
   const handleProfileSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    updateProfileMutation.mutate({ ...formData, avatar: croppedAvatar || user?.avatar })
+    updateProfileMutation.mutate(formData)
   }
 
   const handlePreferencesSubmit = (e: React.FormEvent) => {
@@ -117,15 +111,6 @@ export default function ProfilePage() {
     }
   }
 
-  function handleAvatarPick(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files && e.target.files[0]) {
-      const reader = new FileReader();
-      reader.onload = (ev) => setAvatarSrc(ev.target?.result as string ?? null);
-      reader.readAsDataURL(e.target.files[0]);
-      setShowCropper(true);
-    }
-  }
-
   const currencies = [
     { code: 'USD', name: 'US Dollar', symbol: '$' },
     { code: 'EUR', name: 'Euro', symbol: '€' },
@@ -143,7 +128,6 @@ export default function ProfilePage() {
     'Asia/Kolkata', 'Australia/Sydney', 'Pacific/Auckland'
   ]
 
-  // Show loading state if user data is not available
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 relative overflow-hidden">
@@ -159,7 +143,6 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 relative overflow-hidden">
-      {/* Background Animations */}
       {preferences.theme === 'light' && <DaySkyAnimation />}
       {preferences.theme === 'dark' && <StarfieldBackground />}
       
@@ -186,42 +169,6 @@ export default function ProfilePage() {
           </div>
           <div className="p-4 sm:p-6">
             <form onSubmit={handleProfileSubmit} className="space-y-6">
-              {/* Avatar Section */}
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                <div className="relative">
-                  <div className="h-24 w-24 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center overflow-hidden">
-                    {croppedAvatar ? (
-                      <img className="h-24 w-24 rounded-full object-cover" src={croppedAvatar} alt={user.name} />
-                    ) : user?.avatar ? (
-                      <img className="h-24 w-24 rounded-full object-cover" src={user.avatar} alt={user.name} />
-                    ) : (
-                      <span className="text-3xl font-bold text-primary-600 dark:text-primary-200">
-                        {user?.name?.charAt(0).toUpperCase()}
-                      </span>
-                    )}
-                  </div>
-                  {isEditing && (
-                    <>
-                      <button type="button" className="absolute -bottom-2 -right-2 h-8 w-8 bg-primary-600 dark:bg-primary-800 text-white rounded-full flex items-center justify-center hover:bg-primary-700 dark:hover:bg-primary-900 transition-colors" onClick={() => document.getElementById('avatarUpload')?.click()}>
-                        <Camera className="h-4 w-4" />
-                      </button>
-                      <input id="avatarUpload" type="file" accept="image/*" className="hidden" onChange={handleAvatarPick} />
-                    </>
-                  )}
-                  {showCropper && avatarSrc && (
-                    <ProfileAvatarCropper image={avatarSrc} onCrop={(base64) => { setCroppedAvatar(base64); setShowCropper(false); }} onClose={() => setShowCropper(false)} />
-                  )}
-                </div>
-                <div className="text-center sm:text-left">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{user?.name}</h3>
-                  <p className="text-gray-600 dark:text-gray-300">{user?.email}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Form Fields */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
@@ -284,7 +231,7 @@ export default function ProfilePage() {
                     className="input w-full bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
                   >
                     {currencies.map((currency) => (
-                      <option key={currency.code} value={currency.code} className="bg-white dark:bg-gray-900">
+                      <option key={currency.code} value={currency.code}>
                         {currency.symbol} {currency.name} ({currency.code})
                       </option>
                     ))}
@@ -304,9 +251,7 @@ export default function ProfilePage() {
                     className="input w-full bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
                   >
                     {timezones.map((tz) => (
-                      <option key={tz} value={tz} className="bg-white dark:bg-gray-900">
-                        {tz}
-                      </option>
+                      <option key={tz} value={tz}>{tz}</option>
                     ))}
                   </select>
                 </div>
@@ -348,7 +293,6 @@ export default function ProfilePage() {
           </div>
           <div className="p-4 sm:p-6">
             <form onSubmit={handlePreferencesSubmit} className="space-y-6">
-              {/* Theme */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                   <Palette className="h-4 w-4 inline mr-2" />
@@ -365,9 +309,7 @@ export default function ProfilePage() {
                     }`}
                   >
                     <div className="text-center">
-                      <Sun className={`h-6 w-6 mx-auto mb-2 ${
-                        preferences.theme === 'light' ? 'text-yellow-500' : 'text-gray-400'
-                      }`} />
+                      <Sun className={`h-6 w-6 mx-auto mb-2 ${preferences.theme === 'light' ? 'text-yellow-500' : 'text-gray-400'}`} />
                       <div className="font-medium">Light</div>
                     </div>
                   </button>
@@ -381,37 +323,32 @@ export default function ProfilePage() {
                     }`}
                   >
                     <div className="text-center">
-                      <Moon className={`h-6 w-6 mx-auto mb-2 ${
-                        preferences.theme === 'dark' ? 'text-blue-400' : 'text-gray-400'
-                      }`} />
+                      <Moon className={`h-6 w-6 mx-auto mb-2 ${preferences.theme === 'dark' ? 'text-blue-400' : 'text-gray-400'}`} />
                       <div className="font-medium">Dark</div>
                     </div>
                   </button>
                 </div>
               </div>
 
-              {/* Budget Alerts */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                   <Bell className="h-4 w-4 inline mr-2" />
                   Budget Alerts
                 </label>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Budget Alerts</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Get notified when approaching budget limits</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={preferences.budgetAlerts}
-                        onChange={(e) => handlePreferenceChange('budgetAlerts', e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-800 after:border-gray-300 dark:after:border-gray-700 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                    </label>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Budget Alerts</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Get notified when approaching budget limits</p>
                   </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={preferences.budgetAlerts}
+                      onChange={(e) => handlePreferenceChange('budgetAlerts', e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-800 after:border-gray-300 dark:after:border-gray-700 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                  </label>
                 </div>
               </div>
 
@@ -434,7 +371,6 @@ export default function ProfilePage() {
             </form>
           </div>
         </div>
-
       </div>
     </div>
   )
