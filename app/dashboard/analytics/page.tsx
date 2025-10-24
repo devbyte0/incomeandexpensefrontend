@@ -1,356 +1,145 @@
 'use client'
 
-import { useState } from 'react'
-import { useQuery } from 'react-query'
+import React, { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { analyticsAPI } from '@/lib/api'
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  BarChart3, 
-  PieChart,
-  Calendar,
-  Filter,
-  Download
-} from 'lucide-react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell, BarChart, Bar } from 'recharts'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+} from 'recharts'
+import { AxiosResponse } from 'axios'
+
+type DashboardResponse = {
+  totalSales: number
+  totalOrders: number
+  totalUsers: number
+}
+
+type TrendItem = {
+  _id: { year: number; month: number }
+  total: number
+  count: number
+}
+
+type CategoryItem = {
+  _id: string
+  total: number
+}
 
 export default function AnalyticsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('month')
-  const [selectedType, setSelectedType] = useState('expense')
+  const [selectedType, setSelectedType] = useState('sales')
 
-  const { data: dashboardData, isLoading: dashboardLoading } = useQuery(
-    ['analytics-dashboard', selectedPeriod],
-    () => analyticsAPI.getDashboard({ params: { period: selectedPeriod } }),
-    {
-      select: (response) => response.data.data,
-    }
-  )
+  // ✅ Dashboard Query
+  const { data: dashboardData, isLoading: dashboardLoading } = useQuery({
+    queryKey: ['analytics-dashboard', selectedPeriod],
+    queryFn: () => analyticsAPI.getDashboard({ period: selectedPeriod }),
+    select: (response: AxiosResponse<{ data: DashboardResponse }>) =>
+      response.data.data,
+  })
 
-  const { data: trendsData, isLoading: trendsLoading } = useQuery(
-    ['analytics-trends', selectedPeriod, selectedType],
-    () => analyticsAPI.getTrends({ params: { period: selectedPeriod, type: selectedType } }),
-    {
-      select: (response) => response.data.data,
-    }
-  )
+  // ✅ Trends Query
+  const { data: trendsData, isLoading: trendsLoading } = useQuery({
+    queryKey: ['analytics-trends', selectedPeriod, selectedType],
+    queryFn: () =>
+      analyticsAPI.getTrends({ period: selectedPeriod, type: selectedType }),
+    select: (response: AxiosResponse<{ data: TrendItem[] }>) =>
+      response.data.data,
+  })
 
-  const { data: categoryData, isLoading: categoryLoading } = useQuery(
-    ['analytics-categories', selectedPeriod],
-    () => analyticsAPI.getCategories({ params: { period: selectedPeriod } }),
-    {
-      select: (response) => response.data.data,
-    }
-  )
+  // ✅ Categories Query
+  const { data: categoryData, isLoading: categoryLoading } = useQuery({
+    queryKey: ['analytics-categories', selectedPeriod],
+    queryFn: () => analyticsAPI.getCategories({ period: selectedPeriod }),
+    select: (response: AxiosResponse<{ data: CategoryItem[] }>) =>
+      response.data.data,
+  })
 
   if (dashboardLoading || trendsLoading || categoryLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="loading-spinner"></div>
+      <div className="flex justify-center items-center h-96">
+        <p className="text-gray-600">Loading analytics data...</p>
       </div>
     )
   }
 
-  const summary = dashboardData?.summary
-  const trends = trendsData?.trends || []
-  const categoryAnalysis = categoryData?.categoryAnalysis || []
-
-  // Prepare data for charts
-  const trendsChartData = trends.map(item => ({
+  // ✅ Prepare chart data safely with proper types
+  const trendsChartData = (trendsData || []).map((item: TrendItem) => ({
     month: `${item._id.year}-${item._id.month.toString().padStart(2, '0')}`,
     amount: item.total,
     count: item.count,
-    average: item.average
   }))
 
-  const pieChartData = categoryAnalysis.slice(0, 6).map(category => ({
-    name: category.categoryName,
-    value: category.total,
-    color: category.categoryColor,
-    percentage: category.percentage
+  const categoryChartData = (categoryData || []).map((item: CategoryItem) => ({
+    category: item._id,
+    total: item.total,
   }))
-
-  const COLORS = pieChartData.map(item => item.color)
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Analytics</h1>
-            <p className="text-gray-600 mt-1">Detailed insights into your financial data</p>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-6">Analytics Dashboard</h1>
+
+      {/* === Dashboard Summary === */}
+      {dashboardData && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow p-6 text-center">
+            <p className="text-gray-500">Total Sales</p>
+            <p className="text-2xl font-semibold">${dashboardData.totalSales}</p>
           </div>
-          
-          {/* Period Selector */}
-          <div className="flex flex-wrap gap-2">
-            {['week', 'month', 'year'].map((period) => (
-              <button
-                key={period}
-                onClick={() => setSelectedPeriod(period)}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedPeriod === period
-                    ? 'bg-primary-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
-                }`}
-              >
-                {period.charAt(0).toUpperCase() + period.slice(1)}
-              </button>
-            ))}
+          <div className="bg-white rounded-xl shadow p-6 text-center">
+            <p className="text-gray-500">Total Orders</p>
+            <p className="text-2xl font-semibold">{dashboardData.totalOrders}</p>
+          </div>
+          <div className="bg-white rounded-xl shadow p-6 text-center">
+            <p className="text-gray-500">Total Users</p>
+            <p className="text-2xl font-semibold">{dashboardData.totalUsers}</p>
           </div>
         </div>
+      )}
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Income</p>
-                <p className="text-2xl sm:text-3xl font-bold text-success-600 mt-1">
-                  ${summary?.income.total.toLocaleString() || '0'}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {summary?.income.count || 0} transactions
-                </p>
-              </div>
-              <div className="h-12 w-12 bg-success-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-success-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Expenses</p>
-                <p className="text-2xl sm:text-3xl font-bold text-danger-600 mt-1">
-                  ${summary?.expense.total.toLocaleString() || '0'}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {summary?.expense.count || 0} transactions
-                </p>
-              </div>
-              <div className="h-12 w-12 bg-danger-100 rounded-lg flex items-center justify-center">
-                <TrendingDown className="h-6 w-6 text-danger-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Net Balance</p>
-                <p className={`text-2xl sm:text-3xl font-bold mt-1 ${
-                  (summary?.net || 0) >= 0 ? 'text-success-600' : 'text-danger-600'
-                }`}>
-                  ${summary?.net.toLocaleString() || '0'}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {summary?.income.average ? `Avg: $${summary.income.average.toFixed(0)}` : 'No data'}
-                </p>
-              </div>
-              <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
-                (summary?.net || 0) >= 0 ? 'bg-success-100' : 'bg-danger-100'
-              }`}>
-                <BarChart3 className={`h-6 w-6 ${
-                  (summary?.net || 0) >= 0 ? 'text-success-600' : 'text-danger-600'
-                }`} />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Avg Transaction</p>
-                <p className="text-2xl sm:text-3xl font-bold text-primary-600 mt-1">
-                  ${summary?.expense.average ? summary.expense.average.toFixed(0) : '0'}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Per expense
-                </p>
-              </div>
-              <div className="h-12 w-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                <PieChart className="h-6 w-6 text-primary-600" />
-              </div>
-            </div>
-          </div>
+      {/* === Trends Chart === */}
+      <div className="bg-white rounded-xl shadow p-6 mb-8">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Sales Trends</h2>
+          <select
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value)}
+            className="border border-gray-300 rounded-lg p-2"
+          >
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
         </div>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Trends Chart */}
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Spending Trends</h3>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setSelectedType('income')}
-                  className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                    selectedType === 'income'
-                      ? 'bg-success-100 text-success-700'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  Income
-                </button>
-                <button
-                  onClick={() => setSelectedType('expense')}
-                  className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                    selectedType === 'expense'
-                      ? 'bg-danger-100 text-danger-700'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  Expense
-                </button>
-              </div>
-            </div>
-            
-            <div className="h-64 sm:h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendsChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="month" 
-                    stroke="#6b7280"
-                    fontSize={12}
-                    tickFormatter={(value) => {
-                      const [year, month] = value.split('-')
-                      return `${month}/${year.slice(2)}`
-                    }}
-                  />
-                  <YAxis 
-                    stroke="#6b7280"
-                    fontSize={12}
-                    tickFormatter={(value) => `$${value.toLocaleString()}`}
-                  />
-                  <Tooltip 
-                    formatter={(value: number) => [`$${value.toLocaleString()}`, 'Amount']}
-                    labelFormatter={(value) => `Month: ${value}`}
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                    }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="amount" 
-                    stroke={selectedType === 'income' ? '#10b981' : '#ef4444'} 
-                    strokeWidth={2}
-                    dot={{ fill: selectedType === 'income' ? '#10b981' : '#ef4444', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={trendsChartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="amount" fill="#3b82f6" radius={[6, 6, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
 
-          {/* Category Breakdown */}
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Category Breakdown</h3>
-              <button className="p-2 text-gray-400 hover:text-gray-600">
-                <Download className="h-4 w-4" />
-              </button>
-            </div>
-            
-            <div className="h-64 sm:h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <RechartsPieChart>
-                  <Pie
-                    data={pieChartData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percentage }) => `${name} (${percentage}%)`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {pieChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value: number) => [`$${value.toLocaleString()}`, 'Amount']} />
-                </RechartsPieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-
-        {/* Category Analysis Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-4 sm:p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Detailed Category Analysis</h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Amount
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Transactions
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Average
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Percentage
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {categoryAnalysis.map((category, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div 
-                          className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm mr-3"
-                          style={{ backgroundColor: category.categoryColor }}
-                        >
-                          {category.categoryIcon}
-                        </div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {category.categoryName}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                      ${category.total.toLocaleString()}
-                    </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {category.count}
-                    </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      ${category.average.toFixed(0)}
-                    </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                          <div 
-                            className="h-2 rounded-full"
-                            style={{ 
-                              width: `${category.percentage}%`,
-                              backgroundColor: category.categoryColor 
-                            }}
-                          ></div>
-                        </div>
-                        <span className="text-sm text-gray-500">{category.percentage}%</span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+      {/* === Category Chart === */}
+      <div className="bg-white rounded-xl shadow p-6">
+        <h2 className="text-xl font-semibold mb-4">Top Categories</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={categoryChartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="category" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="total" fill="#10b981" radius={[6, 6, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   )
