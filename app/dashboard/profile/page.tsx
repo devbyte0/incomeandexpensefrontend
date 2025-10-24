@@ -19,6 +19,7 @@ import {
 import toast from 'react-hot-toast'
 import DaySkyAnimation from '@/components/DaySkyAnimation'
 import StarfieldBackground from '@/components/StarfieldBackground'
+import ProfileAvatarCropper from '@/components/ProfileAvatarCropper';
 
 function setThemeClass(theme: 'light' | 'dark') {
   if (theme === 'dark') {
@@ -43,6 +44,10 @@ export default function ProfilePage() {
     theme: user?.preferences?.theme || 'light',
     budgetAlerts: user?.preferences?.budgetAlerts ?? true
   })
+
+  const [avatarSrc, setAvatarSrc] = useState<string | null>(null);
+  const [croppedAvatar, setCroppedAvatar] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
 
   const queryClient = useQueryClient()
 
@@ -75,7 +80,7 @@ export default function ProfilePage() {
 
   const handleProfileSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    updateProfileMutation.mutate(formData)
+    updateProfileMutation.mutate({ ...formData, avatar: croppedAvatar || user?.avatar })
   }
 
   const handlePreferencesSubmit = (e: React.FormEvent) => {
@@ -108,6 +113,15 @@ export default function ProfilePage() {
         ...preferences,
         [path]: value
       })
+    }
+  }
+
+  function handleAvatarPick(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setAvatarSrc(ev.target?.result as string ?? null);
+      reader.readAsDataURL(e.target.files[0]);
+      setShowCropper(true);
     }
   }
 
@@ -169,6 +183,45 @@ export default function ProfilePage() {
           </div>
           <div className="p-4 sm:p-6">
             <form onSubmit={handleProfileSubmit} className="space-y-6">
+<<<<<<< HEAD
+=======
+              {/* Avatar Section */}
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <div className="relative">
+                  <div className="h-24 w-24 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center overflow-hidden">
+                    {croppedAvatar ? (
+                      <img className="h-24 w-24 rounded-full object-cover" src={croppedAvatar} alt={user.name} />
+                    ) : user?.avatar ? (
+                      <img className="h-24 w-24 rounded-full object-cover" src={user.avatar} alt={user.name} />
+                    ) : (
+                      <span className="text-3xl font-bold text-primary-600 dark:text-primary-200">
+                        {user?.name?.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  {isEditing && (
+                    <>
+                      <button type="button" className="absolute -bottom-2 -right-2 h-8 w-8 bg-primary-600 dark:bg-primary-800 text-white rounded-full flex items-center justify-center hover:bg-primary-700 dark:hover:bg-primary-900 transition-colors" onClick={() => document.getElementById('avatarUpload')?.click()}>
+                        <Camera className="h-4 w-4" />
+                      </button>
+                      <input id="avatarUpload" type="file" accept="image/*" className="hidden" onChange={handleAvatarPick} />
+                    </>
+                  )}
+                  {showCropper && avatarSrc && (
+                    <ProfileAvatarCropper image={avatarSrc} onCrop={(base64) => { setCroppedAvatar(base64); setShowCropper(false); }} onClose={() => setShowCropper(false)} />
+                  )}
+                </div>
+                <div className="text-center sm:text-left">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{user?.name}</h3>
+                  <p className="text-gray-600 dark:text-gray-300">{user?.email}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Form Fields */}
+>>>>>>> d12336ba2fc10c2fa1379a40f604f9d4c1d7ffad
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
