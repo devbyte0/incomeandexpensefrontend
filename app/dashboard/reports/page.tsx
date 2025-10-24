@@ -49,8 +49,13 @@ export default function ReportsPage() {
 
   if (dashboardLoading || trendsLoading || categoryLoading || comparisonLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="loading-spinner"></div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="loading-spinner mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Loading reports...</p>
+          </div>
+        </div>
       </div>
     )
   }
@@ -81,13 +86,13 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Reports</h1>
-            <p className="text-gray-600 mt-1">Generate detailed financial reports and insights</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Reports</h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">Generate detailed financial reports and insights</p>
           </div>
           <button
             onClick={exportReport}
@@ -99,14 +104,14 @@ export default function ReportsPage() {
         </div>
 
         {/* Report Controls */}
-        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Period</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Period</label>
               <select
                 value={selectedPeriod}
                 onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="input w-full"
+                className="input w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
               >
                 <option value="week">This Week</option>
                 <option value="month">This Month</option>
@@ -114,11 +119,11 @@ export default function ReportsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Report Type</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Report Type</label>
               <select
                 value={reportType}
                 onChange={(e) => setReportType(e.target.value)}
-                className="input w-full"
+                className="input w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
               >
                 <option value="summary">Summary Report</option>
                 <option value="detailed">Detailed Report</option>
@@ -126,21 +131,21 @@ export default function ReportsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Start Date</label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="input w-full"
+                className="input w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">End Date</label>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="input w-full"
+                className="input w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
               />
             </div>
           </div>
@@ -148,79 +153,79 @@ export default function ReportsPage() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Income</p>
-                <p className="text-2xl sm:text-3xl font-bold text-success-600 mt-1">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Income</p>
+                <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
                   ${summary?.income.total.toLocaleString() || '0'}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {summary?.income.count || 0} transactions
                 </p>
               </div>
-              <div className="h-12 w-12 bg-success-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-success-600" />
+              <div className="h-12 w-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Expenses</p>
-                <p className="text-2xl sm:text-3xl font-bold text-danger-600 mt-1">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Expenses</p>
+                <p className="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400 mt-1">
                   ${summary?.expense.total.toLocaleString() || '0'}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {summary?.expense.count || 0} transactions
                 </p>
               </div>
-              <div className="h-12 w-12 bg-danger-100 rounded-lg flex items-center justify-center">
-                <TrendingDown className="h-6 w-6 text-danger-600" />
+              <div className="h-12 w-12 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
+                <TrendingDown className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Net Balance</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Net Balance</p>
                 <p className={`text-2xl sm:text-3xl font-bold mt-1 ${
-                  (summary?.net || 0) >= 0 ? 'text-success-600' : 'text-danger-600'
+                  (summary?.net || 0) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                 }`}>
                   ${summary?.net.toLocaleString() || '0'}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {summary?.income.average ? `Avg: $${summary.income.average.toFixed(0)}` : 'No data'}
                 </p>
               </div>
               <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
-                (summary?.net || 0) >= 0 ? 'bg-success-100' : 'bg-danger-100'
+                (summary?.net || 0) >= 0 ? 'bg-green-100 dark:bg-green-900' : 'bg-red-100 dark:bg-red-900'
               }`}>
                 <DollarSign className={`h-6 w-6 ${
-                  (summary?.net || 0) >= 0 ? 'text-success-600' : 'text-danger-600'
+                  (summary?.net || 0) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                 }`} />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Savings Rate</p>
-                <p className="text-2xl sm:text-3xl font-bold text-primary-600 mt-1">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Savings Rate</p>
+                <p className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1">
                   {summary?.income.total > 0 
                     ? ((summary.net / summary.income.total) * 100).toFixed(1)
                     : '0'
                   }%
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Of total income
                 </p>
               </div>
-              <div className="h-12 w-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                <BarChart3 className="h-6 w-6 text-primary-600" />
+              <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                <BarChart3 className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
           </div>

@@ -56,6 +56,7 @@ export default function ProfilePage() {
       setIsEditing(false)
     },
     onError: (error: any) => {
+      console.error('Profile update error:', error)
       toast.error(error.response?.data?.message || 'Failed to update profile')
     },
   })
@@ -68,6 +69,7 @@ export default function ProfilePage() {
       toast.success('Preferences updated successfully!')
     },
     onError: (error: any) => {
+      console.error('Preferences update error:', error)
       toast.error(error.response?.data?.message || 'Failed to update preferences')
     },
   })
@@ -126,6 +128,20 @@ export default function ProfilePage() {
     'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Tokyo', 'Asia/Shanghai',
     'Asia/Kolkata', 'Australia/Sydney', 'Pacific/Auckland'
   ]
+
+  // Show loading state if user data is not available
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="loading-spinner mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Loading profile...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 relative overflow-hidden">

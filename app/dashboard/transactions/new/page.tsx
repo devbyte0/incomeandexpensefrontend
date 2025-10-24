@@ -82,16 +82,17 @@ export default function NewTransactionPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Add New Transaction</h1>
-        <p className="text-gray-600">Record your income or expense</p>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-2xl mx-auto">
+        <div className="mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Add New Transaction</h1>
+          <p className="text-gray-600 dark:text-gray-300">Record your income or expense</p>
+        </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Transaction Type */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
             Transaction Type
           </label>
           <div className="flex space-x-4">
@@ -100,8 +101,8 @@ export default function NewTransactionPage() {
               onClick={() => handleTypeChange('income')}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                 formData.type === 'income'
-                  ? 'bg-success-100 text-success-700 border-2 border-success-300'
-                  : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
+                  ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 border-2 border-green-300 dark:border-green-600'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-transparent hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
               💰 Income
@@ -111,8 +112,8 @@ export default function NewTransactionPage() {
               onClick={() => handleTypeChange('expense')}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                 formData.type === 'expense'
-                  ? 'bg-danger-100 text-danger-700 border-2 border-danger-300'
-                  : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
+                  ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 border-2 border-red-300 dark:border-red-600'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-transparent hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
               💸 Expense
@@ -122,7 +123,7 @@ export default function NewTransactionPage() {
 
         {/* Title */}
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
             Title *
           </label>
           <input
@@ -130,7 +131,7 @@ export default function NewTransactionPage() {
             id="title"
             name="title"
             required
-            className="input"
+            className="input bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
             placeholder="Enter transaction title"
             value={formData.title}
             onChange={handleChange}
@@ -139,12 +140,12 @@ export default function NewTransactionPage() {
 
         {/* Amount */}
         <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
             Amount *
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <DollarSign className="h-5 w-5 text-gray-400" />
+              <DollarSign className="h-5 w-5 text-gray-400 dark:text-gray-500" />
             </div>
             <input
               type="number"
@@ -153,7 +154,7 @@ export default function NewTransactionPage() {
               required
               min="0.01"
               step="0.01"
-              className="input pl-10"
+              className="input pl-10 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
               placeholder="0.00"
               value={formData.amount}
               onChange={handleChange}
@@ -163,20 +164,20 @@ export default function NewTransactionPage() {
 
         {/* Category */}
         <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
             Category *
           </label>
           <select
             id="category"
             name="category"
             required
-            className="input"
+            className="input bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
             value={formData.category}
             onChange={handleChange}
           >
             <option value="">Select a category</option>
             {Array.isArray(categories) ? categories.map((category: any) => (
-              <option key={category._id} value={category._id}>
+              <option key={category._id} value={category._id} className="bg-white dark:bg-gray-800">
                 {category.icon} {category.name}
               </option>
             )) : null}
@@ -185,7 +186,7 @@ export default function NewTransactionPage() {
 
         {/* Date */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
             Date *
           </label>
           <div className="relative">
@@ -194,23 +195,23 @@ export default function NewTransactionPage() {
               selected={formData.date}
               onChange={(date: Date) => setFormData({ ...formData, date })}
               dateFormat="MMM dd, yyyy"
-              className="input w-full"
+              className="input w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
               placeholderText="Select date"
             />
-            <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
           </div>
         </div>
 
         {/* Description */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
             Description
           </label>
           <textarea
             id="description"
             name="description"
             rows={3}
-            className="input"
+            className="input bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
             placeholder="Optional description"
             value={formData.description}
             onChange={handleChange}
@@ -219,18 +220,18 @@ export default function NewTransactionPage() {
 
         {/* Tags */}
         <div>
-          <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="tags" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
             Tags
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Tag className="h-5 w-5 text-gray-400" />
+              <Tag className="h-5 w-5 text-gray-400 dark:text-gray-500" />
             </div>
             <input
               type="text"
               id="tags"
               name="tags"
-              className="input pl-10"
+              className="input pl-10 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
               placeholder="food, business, travel (comma separated)"
               value={formData.tags}
               onChange={handleChange}
@@ -240,14 +241,14 @@ export default function NewTransactionPage() {
 
         {/* Notes */}
         <div>
-          <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
             Notes
           </label>
           <textarea
             id="notes"
             name="notes"
             rows={3}
-            className="input"
+            className="input bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
             placeholder="Additional notes"
             value={formData.notes}
             onChange={handleChange}
@@ -276,6 +277,7 @@ export default function NewTransactionPage() {
           </button>
         </div>
       </form>
+      </div>
     </div>
   )
 }

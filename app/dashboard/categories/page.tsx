@@ -38,10 +38,12 @@ export default function CategoriesPage() {
 
   const queryClient = useQueryClient()
 
-  const { data: categories, isPending } = useQuery({
+  const { data: categories, isPending, error, refetch } = useQuery({
     queryKey: ['categories'],
     queryFn: () => categoriesAPI.getCategories(),
     select: (response) => response.data.data.categories,
+    retry: 3,
+    retryDelay: 1000,
   })
 
   const createCategoryMutation = useMutation({
@@ -124,19 +126,49 @@ export default function CategoriesPage() {
   if (isPending) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="loading-spinner"></div>
+        <div className="text-center">
+          <div className="loading-spinner mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading categories...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              Failed to load categories
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
+              We couldn't load your categories. This might be due to a network issue or server problem.
+            </p>
+            <button
+              onClick={() => refetch()}
+              className="btn btn-primary btn-md inline-flex items-center"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Try Again
+            </button>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Categories</h1>
-            <p className="text-gray-600 mt-1">Organize your transactions with custom categories</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Categories</h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">Organize your transactions with custom categories</p>
           </div>
           <button
             onClick={() => {
@@ -152,11 +184,11 @@ export default function CategoriesPage() {
         </div>
 
         {/* Income Categories */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-4 sm:p-6 border-b border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center">
               <TrendingUp className="h-5 w-5 text-success-600 mr-2" />
-              <h2 className="text-lg font-semibold text-gray-900">Income Categories</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Income Categories</h2>
               <span className="ml-2 bg-success-100 text-success-800 text-xs font-medium px-2 py-1 rounded-full">
                 {incomeCategories.length}
               </span>
@@ -165,16 +197,16 @@ export default function CategoriesPage() {
           <div className="p-4 sm:p-6">
             {incomeCategories.length === 0 ? (
               <div className="text-center py-8">
-                <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">No income categories yet</p>
-                <p className="text-sm text-gray-400">Create your first income category to get started</p>
+                <DollarSign className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No income categories yet</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500">Create your first income category to get started</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {incomeCategories.map((category: any) => (
                   <div
                     key={category._id}
-                    className="relative group p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+                    className="relative group p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:shadow-md transition-shadow bg-white dark:bg-gray-700"
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div
@@ -217,11 +249,11 @@ export default function CategoriesPage() {
         </div>
 
         {/* Expense Categories */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-4 sm:p-6 border-b border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center">
               <TrendingDown className="h-5 w-5 text-danger-600 mr-2" />
-              <h2 className="text-lg font-semibold text-gray-900">Expense Categories</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Expense Categories</h2>
               <span className="ml-2 bg-danger-100 text-danger-800 text-xs font-medium px-2 py-1 rounded-full">
                 {expenseCategories.length}
               </span>
@@ -230,16 +262,16 @@ export default function CategoriesPage() {
           <div className="p-4 sm:p-6">
             {expenseCategories.length === 0 ? (
               <div className="text-center py-8">
-                <Tag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">No expense categories yet</p>
-                <p className="text-sm text-gray-400">Create your first expense category to get started</p>
+                <Tag className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">No expense categories yet</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500">Create your first expense category to get started</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {expenseCategories.map((category: any) => (
                   <div
                     key={category._id}
-                    className="relative group p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+                    className="relative group p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:shadow-md transition-shadow bg-white dark:bg-gray-700"
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div
@@ -265,12 +297,12 @@ export default function CategoriesPage() {
                         </div>
                       )}
                     </div>
-                    <h3 className="font-medium text-gray-900 mb-1">{category.name}</h3>
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-1">{category.name}</h3>
                     {category.description && (
-                      <p className="text-sm text-gray-500 line-clamp-2">{category.description}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{category.description}</p>
                     )}
                     {category.isDefault && (
-                      <span className="inline-block mt-2 text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
+                      <span className="inline-block mt-2 text-xs text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-600 px-2 py-1 rounded">
                         Default
                       </span>
                     )}
@@ -284,21 +316,21 @@ export default function CategoriesPage() {
         {/* Add/Edit Category Modal */}
         {showAddModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
                   {editingCategory ? 'Edit Category' : 'Add New Category'}
                 </h3>
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                       Category Name
                     </label>
                     <input
                       type="text"
                       required
-                      className="input w-full"
+                      className="input w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
                       placeholder="Enter category name"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -306,7 +338,7 @@ export default function CategoriesPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                       Type
                     </label>
                     <div className="flex space-x-4">
@@ -315,8 +347,8 @@ export default function CategoriesPage() {
                         onClick={() => setFormData({ ...formData, type: 'income' })}
                         className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                           formData.type === 'income'
-                            ? 'bg-success-100 text-success-700 border-2 border-success-300'
-                            : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
+                            ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 border-2 border-green-300 dark:border-green-600'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-transparent hover:bg-gray-200 dark:hover:bg-gray-600'
                         }`}
                       >
                         💰 Income
@@ -326,8 +358,8 @@ export default function CategoriesPage() {
                         onClick={() => setFormData({ ...formData, type: 'expense' })}
                         className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                           formData.type === 'expense'
-                            ? 'bg-danger-100 text-danger-700 border-2 border-danger-300'
-                            : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
+                            ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 border-2 border-red-300 dark:border-red-600'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-transparent hover:bg-gray-200 dark:hover:bg-gray-600'
                         }`}
                       >
                         💸 Expense
@@ -336,7 +368,7 @@ export default function CategoriesPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                       Icon
                     </label>
                     <div className="grid grid-cols-10 gap-2">
@@ -347,8 +379,8 @@ export default function CategoriesPage() {
                           onClick={() => setFormData({ ...formData, icon })}
                           className={`p-2 rounded-lg text-lg transition-colors ${
                             formData.icon === icon
-                              ? 'bg-primary-100 border-2 border-primary-300'
-                              : 'bg-gray-100 hover:bg-gray-200 border-2 border-transparent'
+                              ? 'bg-blue-100 dark:bg-blue-900 border-2 border-blue-300 dark:border-blue-600'
+                              : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border-2 border-transparent'
                           }`}
                         >
                           {icon}
@@ -358,7 +390,7 @@ export default function CategoriesPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                       Color
                     </label>
                     <div className="grid grid-cols-5 gap-2">
@@ -369,8 +401,8 @@ export default function CategoriesPage() {
                           onClick={() => setFormData({ ...formData, color })}
                           className={`h-8 w-8 rounded-lg border-2 transition-all ${
                             formData.color === color
-                              ? 'border-gray-400 scale-110'
-                              : 'border-gray-200 hover:scale-105'
+                              ? 'border-gray-400 dark:border-gray-300 scale-110'
+                              : 'border-gray-200 dark:border-gray-600 hover:scale-105'
                           }`}
                           style={{ backgroundColor: color }}
                         />
@@ -379,12 +411,12 @@ export default function CategoriesPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                       Description (Optional)
                     </label>
                     <textarea
                       rows={3}
-                      className="input w-full"
+                      className="input w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600"
                       placeholder="Enter category description"
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}

@@ -78,27 +78,27 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Settings</h1>
-          <p className="text-gray-600 mt-1">Manage your account settings and preferences</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Settings</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">Manage your account settings and preferences</p>
         </div>
 
         {/* Security Settings */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-4 sm:p-6 border-b border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center">
-              <Shield className="h-5 w-5 text-primary-600 mr-3" />
-              <h2 className="text-lg font-semibold text-gray-900">Security</h2>
+              <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-3" />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Security</h2>
             </div>
           </div>
           <div className="p-4 sm:p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Password</p>
-                <p className="text-xs text-gray-500">Last changed 30 days ago</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Password</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Last changed 30 days ago</p>
               </div>
               <button
                 onClick={() => setShowPasswordModal(true)}
@@ -110,8 +110,8 @@ export default function SettingsPage() {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Two-Factor Authentication</p>
-                <p className="text-xs text-gray-500">Add an extra layer of security</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Two-Factor Authentication</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Add an extra layer of security</p>
               </div>
               <button className="btn btn-secondary btn-sm">
                 Enable 2FA
@@ -120,8 +120,8 @@ export default function SettingsPage() {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Login Sessions</p>
-                <p className="text-xs text-gray-500">Manage active sessions</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Login Sessions</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Manage active sessions</p>
               </div>
               <button className="btn btn-secondary btn-sm">
                 View Sessions
@@ -131,44 +131,44 @@ export default function SettingsPage() {
         </div>
 
         {/* Notification Settings */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-4 sm:p-6 border-b border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center">
-              <Bell className="h-5 w-5 text-primary-600 mr-3" />
-              <h2 className="text-lg font-semibold text-gray-900">Notifications</h2>
+              <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-3" />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Notifications</h2>
             </div>
           </div>
           <div className="p-4 sm:p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Email Notifications</p>
-                <p className="text-xs text-gray-500">Receive updates via email</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Email Notifications</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Receive updates via email</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" defaultChecked className="sr-only peer" />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-800 after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
               </label>
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Push Notifications</p>
-                <p className="text-xs text-gray-500">Receive push notifications</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Push Notifications</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Receive push notifications</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" defaultChecked className="sr-only peer" />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-800 after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
               </label>
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Budget Alerts</p>
-                <p className="text-xs text-gray-500">Get notified when approaching limits</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Budget Alerts</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Get notified when approaching limits</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" defaultChecked className="sr-only peer" />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-800 after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
               </label>
             </div>
           </div>
