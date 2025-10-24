@@ -3,7 +3,6 @@
 
 export interface PDFData {
   title: string
-  period: string
   generatedAt: string
   summary: {
     totalIncome: number
@@ -25,10 +24,6 @@ export interface PDFData {
     amount: number
     type: 'income' | 'expense'
   }>
-  charts?: {
-    trendsData: Array<{ month: string; amount: number }>
-    categoryData: Array<{ name: string; value: number }>
-  }
 }
 
 export class PDFGenerator {
@@ -269,7 +264,6 @@ export class PDFGenerator {
         <div class="header">
           <h1>${data.title}</h1>
           <div class="subtitle">
-            <strong>Period:</strong> ${data.period} | 
             <strong>Generated:</strong> ${data.generatedAt}
           </div>
         </div>
@@ -356,10 +350,8 @@ export class PDFGenerator {
 
 // Utility function to format data for PDF
 export const formatDataForPDF = (
-  analyticsData: any,
   transactionsData: any,
-  categoriesData: any,
-  period: string
+  categoriesData: any
 ): PDFData => {
   const now = new Date()
   const generatedAt = now.toLocaleDateString('en-US', {
@@ -370,37 +362,44 @@ export const formatDataForPDF = (
     minute: '2-digit'
   })
 
+  // Compute totals from transactionsData
+  let totalIncome = 0, totalExpenses = 0, netBalance = 0
+  if (Array.isArray(transactionsData)) {
+    transactionsData.forEach((tx: any) => {
+      if (tx.type === 'income') totalIncome += tx.amount || 0
+      if (tx.type === 'expense') totalExpenses += tx.amount || 0
+    })
+    netBalance = totalIncome - totalExpenses
+  }
+  const savingsRate = totalIncome > 0 ? ((netBalance / totalIncome) * 100) : 0
+
   const summary = {
-    totalIncome: analyticsData?.totalSales || 0,
-    totalExpenses: analyticsData?.totalOrders || 0,
-    netBalance: (analyticsData?.totalSales || 0) - (analyticsData?.totalOrders || 0),
-    savingsRate: analyticsData?.totalSales > 0 
-      ? (((analyticsData.totalSales - analyticsData.totalOrders) / analyticsData.totalSales) * 100)
-      : 0
+    totalIncome,
+    totalExpenses,
+    netBalance,
+    savingsRate,
   }
 
   const categories = (categoriesData || []).map((cat: any) => ({
-    name: cat._id || cat.name || 'Uncategorized',
+    name: cat.name || cat._id || 'Uncategorized',
     amount: cat.total || cat.amount || 0,
     percentage: cat.percentage || 0,
     icon: cat.icon || '📊',
-    color: cat.color || '#3B82F6'
+    color: cat.color || '#3B82F6',
   }))
-
   const transactions = (transactionsData || []).slice(0, 50).map((transaction: any) => ({
     date: new Date(transaction.date || new Date()).toLocaleDateString(),
     title: transaction.title || transaction.description || 'Transaction',
     category: transaction.category?.name || transaction.category || 'Uncategorized',
     amount: transaction.amount || 0,
-    type: transaction.type || 'expense'
+    type: transaction.type || 'expense',
   }))
 
   return {
-    title: 'Financial Report',
-    period: period.charAt(0).toUpperCase() + period.slice(1),
+    title: 'Your Transactions & Categories Report',
     generatedAt,
     summary,
     categories,
-    transactions
+    transactions,
   }
 }
