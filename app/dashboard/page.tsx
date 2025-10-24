@@ -6,28 +6,41 @@ import {
   TrendingUp, 
   TrendingDown, 
   DollarSign, 
-  CreditCard,
-  ArrowUpRight,
-  ArrowDownRight
+  CreditCard 
 } from 'lucide-react'
 import DashboardChart from '@/components/DashboardChart'
 import RecentTransactions from '@/components/RecentTransactions'
 import QuickActions from '@/components/QuickActions'
 
+// Import your types
+import type { Transaction, ChartData } from '@/types'
+
 export default function DashboardPage() {
+  // Fetch analytics
   const { data: analytics, isLoading: analyticsLoading } = useQuery(
     'dashboard-analytics',
-    () => analyticsAPI.getDashboard({ period: 'month' }),
-    {
-      select: (response) => response.data.data,
+    async () => {
+      const res = await analyticsAPI.getDashboard({ period: 'month' })
+      return res.data.data
     }
   )
 
-  const { data: recentTransactions, isLoading: transactionsLoading } = useQuery(
+  // Fetch recent transactions
+  const { data: recentTransactions, isLoading: transactionsLoading } = useQuery<Transaction[]>(
     'recent-transactions',
-    () => transactionsAPI.getRecent({ limit: 5 }),
-    {
-      select: (response) => response.data.data.transactions,
+    async () => {
+      const res = await transactionsAPI.getRecent({ limit: 5 })
+      return res.data.data.transactions.map((tx: any) => ({
+        _id: tx._id,
+        title: tx.title || '',
+        user: tx.user || '',
+        tags: tx.tags || [],
+        attachments: tx.attachments || [],
+        amount: tx.amount,
+        type: tx.type,
+        category: tx.category,
+        date: tx.date,
+      }))
     }
   )
 
@@ -43,6 +56,12 @@ export default function DashboardPage() {
   const categoryBreakdown = analytics?.categoryBreakdown || []
   const monthlyTrends = analytics?.monthlyTrends || []
 
+  // Transform monthlyTrends to match ChartData type
+  const chartData: ChartData[] = monthlyTrends.map((trend: any) => ({
+    _id: trend.month,
+    total: trend.income - trend.expense,
+  }))
+
   return (
     <div className="space-y-6">
       {/* Page header */}
@@ -56,6 +75,7 @@ export default function DashboardPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Total Income */}
         <div className="card dark:bg-gray-800 dark:border-gray-700">
           <div className="card-content">
             <div className="flex items-center">
@@ -73,6 +93,8 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Total Expenses */}
         <div className="card dark:bg-gray-800 dark:border-gray-700">
           <div className="card-content">
             <div className="flex items-center">
@@ -90,6 +112,8 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Net Balance */}
         <div className="card dark:bg-gray-800 dark:border-gray-700">
           <div className="card-content">
             <div className="flex items-center">
@@ -107,6 +131,8 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Transactions Count */}
         <div className="card dark:bg-gray-800 dark:border-gray-700">
           <div className="card-content">
             <div className="flex items-center">
@@ -135,7 +161,7 @@ export default function DashboardPage() {
             <p className="text-sm text-gray-600 dark:text-gray-400">Income vs Expenses this month</p>
           </div>
           <div className="card-content">
-            <DashboardChart data={monthlyTrends} />
+            <DashboardChart data={chartData} />
           </div>
         </div>
 
@@ -159,7 +185,7 @@ export default function DashboardPage() {
         </div>
         <div className="card-content">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {categoryBreakdown.slice(0, 6).map((category, index) => (
+            {categoryBreakdown.slice(0, 6).map((category: any, index: number) => (
               <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
                 <div className="flex items-center">
                   <div
