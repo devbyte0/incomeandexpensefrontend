@@ -181,18 +181,18 @@ export default function SettingsPage() {
         </div>
 
         {/* Data Management */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200">
-          <div className="p-4 sm:p-6 border-b border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center">
-              <Database className="h-5 w-5 text-primary-600 mr-3" />
-              <h2 className="text-lg font-semibold text-gray-900">Data Management</h2>
+              <Database className="h-5 w-5 text-primary-600 dark:text-primary-400 mr-3" />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Data Management</h2>
             </div>
           </div>
           <div className="p-4 sm:p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Export Data</p>
-                <p className="text-xs text-gray-500">Download all your data in JSON format</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Export Data</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Download all your data in JSON format</p>
               </div>
               <button
                 onClick={handleDataExport}
@@ -205,8 +205,8 @@ export default function SettingsPage() {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Clear Cache</p>
-                <p className="text-xs text-gray-500">Clear local application cache</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Clear Cache</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Clear local application cache</p>
               </div>
               <button className="btn btn-secondary btn-sm">
                 Clear Cache
@@ -215,8 +215,8 @@ export default function SettingsPage() {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Reset Preferences</p>
-                <p className="text-xs text-gray-500">Reset all settings to default</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Reset Preferences</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Reset all settings to default</p>
               </div>
               <button className="btn btn-secondary btn-sm">
                 Reset
@@ -226,18 +226,18 @@ export default function SettingsPage() {
         </div>
 
         {/* Account Actions */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200">
-          <div className="p-4 sm:p-6 border-b border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center">
-              <Settings className="h-5 w-5 text-primary-600 mr-3" />
-              <h2 className="text-lg font-semibold text-gray-900">Account Actions</h2>
+              <Settings className="h-5 w-5 text-primary-600 dark:text-primary-400 mr-3" />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Account Actions</h2>
             </div>
           </div>
           <div className="p-4 sm:p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Sign Out</p>
-                <p className="text-xs text-gray-500">Sign out of all devices</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Sign Out</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Sign out of all devices</p>
               </div>
               <button
                 onClick={logout}
@@ -249,8 +249,8 @@ export default function SettingsPage() {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Delete Account</p>
-                <p className="text-xs text-gray-500">Permanently delete your account and all data</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Delete Account</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Permanently delete your account and all data</p>
               </div>
               <button
                 onClick={() => setShowDeleteModal(true)}
@@ -264,27 +264,27 @@ export default function SettingsPage() {
         </div>
 
         {/* App Information */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200">
-          <div className="p-4 sm:p-6 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">App Information</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">App Information</h2>
           </div>
           <div className="p-4 sm:p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-gray-600">Version</p>
-                <p className="font-medium">1.0.0</p>
+                <p className="text-gray-600 dark:text-gray-400">Version</p>
+                <p className="font-medium dark:text-gray-100">1.0.0</p>
               </div>
               <div>
-                <p className="text-gray-600">Build</p>
-                <p className="font-medium">2024.01.001</p>
+                <p className="text-gray-600 dark:text-gray-400">Build</p>
+                <p className="font-medium dark:text-gray-100">2024.01.001</p>
               </div>
               <div>
-                <p className="text-gray-600">Last Updated</p>
-                <p className="font-medium">January 2024</p>
+                <p className="text-gray-600 dark:text-gray-400">Last Updated</p>
+                <p className="font-medium dark:text-gray-100">January 2024</p>
               </div>
               <div>
-                <p className="text-gray-600">User ID</p>
-                <p className="font-medium font-mono text-xs">{user?._id}</p>
+                <p className="text-gray-600 dark:text-gray-400">User ID</p>
+                <p className="font-medium font-mono text-xs dark:text-gray-100">{user?._id}</p>
               </div>
             </div>
           </div>
@@ -293,13 +293,13 @@ export default function SettingsPage() {
         {/* Password Change Modal */}
         {showPasswordModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl max-w-md w-full">
+            <div className="bg-white rounded-xl max-w-md w-full dark:bg-gray-800">
               <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Password</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Change Password</h3>
                 
                 <form onSubmit={handlePasswordSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Current Password
                     </label>
                     <div className="relative">
@@ -308,7 +308,7 @@ export default function SettingsPage() {
                         name="currentPassword"
                         value={passwordData.currentPassword}
                         onChange={handlePasswordChange}
-                        className="input w-full pr-10"
+                        className="input w-full pr-10 dark:bg-gray-700 dark:text-gray-100"
                         required
                       />
                       <button
@@ -317,16 +317,16 @@ export default function SettingsPage() {
                         className="absolute right-3 top-1/2 transform -translate-y-1/2"
                       >
                         {showPasswords.current ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
+                          <EyeOff className="h-4 w-4 text-gray-400 dark:text-gray-600" />
                         ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
+                          <Eye className="h-4 w-4 text-gray-400 dark:text-gray-600" />
                         )}
                       </button>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       New Password
                     </label>
                     <div className="relative">
@@ -335,7 +335,7 @@ export default function SettingsPage() {
                         name="newPassword"
                         value={passwordData.newPassword}
                         onChange={handlePasswordChange}
-                        className="input w-full pr-10"
+                        className="input w-full pr-10 dark:bg-gray-700 dark:text-gray-100"
                         required
                         minLength={6}
                       />
@@ -345,16 +345,16 @@ export default function SettingsPage() {
                         className="absolute right-3 top-1/2 transform -translate-y-1/2"
                       >
                         {showPasswords.new ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
+                          <EyeOff className="h-4 w-4 text-gray-400 dark:text-gray-600" />
                         ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
+                          <Eye className="h-4 w-4 text-gray-400 dark:text-gray-600" />
                         )}
                       </button>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Confirm New Password
                     </label>
                     <div className="relative">
@@ -363,7 +363,7 @@ export default function SettingsPage() {
                         name="confirmPassword"
                         value={passwordData.confirmPassword}
                         onChange={handlePasswordChange}
-                        className="input w-full pr-10"
+                        className="input w-full pr-10 dark:bg-gray-700 dark:text-gray-100"
                         required
                         minLength={6}
                       />
@@ -373,9 +373,9 @@ export default function SettingsPage() {
                         className="absolute right-3 top-1/2 transform -translate-y-1/2"
                       >
                         {showPasswords.confirm ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
+                          <EyeOff className="h-4 w-4 text-gray-400 dark:text-gray-600" />
                         ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
+                          <Eye className="h-4 w-4 text-gray-400 dark:text-gray-600" />
                         )}
                       </button>
                     </div>
@@ -384,7 +384,7 @@ export default function SettingsPage() {
                   <div className="flex space-x-3 pt-4">
                     <button
                       type="submit"
-                      className="btn btn-primary btn-md flex-1"
+                      className="btn btn-primary btn-md flex-1 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-gray-100"
                     >
                       Update Password
                     </button>
@@ -394,7 +394,7 @@ export default function SettingsPage() {
                         setShowPasswordModal(false)
                         setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
                       }}
-                      className="btn btn-secondary btn-md"
+                      className="btn btn-secondary btn-md dark:bg-gray-700 dark:text-gray-100"
                     >
                       Cancel
                     </button>
@@ -408,27 +408,27 @@ export default function SettingsPage() {
         {/* Delete Account Modal */}
         {showDeleteModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl max-w-md w-full">
+            <div className="bg-white rounded-xl max-w-md w-full dark:bg-gray-800">
               <div className="p-6">
                 <div className="flex items-center mb-4">
-                  <AlertTriangle className="h-6 w-6 text-danger-600 mr-3" />
-                  <h3 className="text-lg font-semibold text-gray-900">Delete Account</h3>
+                  <AlertTriangle className="h-6 w-6 text-danger-600 dark:text-danger-400 mr-3" />
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Delete Account</h3>
                 </div>
                 
-                <p className="text-gray-600 mb-6">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
                   Are you sure you want to delete your account? This action cannot be undone and will permanently remove all your data.
                 </p>
 
                 <div className="flex space-x-3">
                   <button
                     onClick={handleAccountDeletion}
-                    className="btn btn-danger btn-md flex-1"
+                    className="btn btn-danger btn-md flex-1 dark:bg-red-600 dark:hover:bg-red-700 dark:text-gray-100"
                   >
                     Delete Account
                   </button>
                   <button
                     onClick={() => setShowDeleteModal(false)}
-                    className="btn btn-secondary btn-md"
+                    className="btn btn-secondary btn-md dark:bg-gray-700 dark:text-gray-100"
                   >
                     Cancel
                   </button>
