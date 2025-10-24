@@ -84,7 +84,7 @@ export default function DashboardPage() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Income */}
-        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm dark:border-gray-700">
+        <div className="card bg-white dark:bg-gray-800 rounded-xl p-6">
           <div className="card-content">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -103,7 +103,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Total Expenses */}
-        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm dark:border-gray-700">
+        <div className="card bg-white dark:bg-gray-800 rounded-xl p-6">
           <div className="card-content">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -122,7 +122,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Net Balance */}
-        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm dark:border-gray-700">
+        <div className="card bg-white dark:bg-gray-800 rounded-xl p-6">
           <div className="card-content">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -141,7 +141,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Transactions Count */}
-        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm dark:border-gray-700">
+        <div className="card bg-white dark:bg-gray-800 rounded-xl p-6">
           <div className="card-content">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -163,7 +163,7 @@ export default function DashboardPage() {
       {/* Charts and Recent Transactions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Monthly Trends Chart */}
-        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm dark:border-gray-700">
+        <div className="card bg-white dark:bg-gray-800 rounded-xl p-6">
           <div className="card-header">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Monthly Trends</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">Income vs Expenses this month</p>
@@ -174,7 +174,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Transactions */}
-        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm dark:border-gray-700">
+        <div className="card bg-white dark:bg-gray-800 rounded-xl p-6">
           <div className="card-header">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Transactions</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">Your latest financial activity</p>
@@ -186,7 +186,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Category Breakdown */}
-      <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm dark:border-gray-700">
+      <div className="card bg-white dark:bg-gray-800 rounded-xl p-6">
         <div className="card-header">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Category Breakdown</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">Spending by category this month</p>

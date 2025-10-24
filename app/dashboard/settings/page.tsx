@@ -181,7 +181,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Data Management */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200">
           <div className="p-4 sm:p-6 border-b border-gray-200">
             <div className="flex items-center">
               <Database className="h-5 w-5 text-primary-600 mr-3" />
@@ -226,7 +226,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Account Actions */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200">
           <div className="p-4 sm:p-6 border-b border-gray-200">
             <div className="flex items-center">
               <Settings className="h-5 w-5 text-primary-600 mr-3" />
@@ -264,7 +264,7 @@ export default function SettingsPage() {
         </div>
 
         {/* App Information */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200">
           <div className="p-4 sm:p-6 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">App Information</h2>
           </div>

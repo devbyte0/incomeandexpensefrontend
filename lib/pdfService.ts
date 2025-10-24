@@ -296,7 +296,7 @@ export class PDFGenerator {
         <div class="section">
           <h2>📊 Category Breakdown</h2>
           <div class="categories-grid">
-            ${data.categories.map(cat => `
+            ${Array.isArray(data.categories) ? data.categories.map(cat => `
               <div class="category-item">
                 <div class="category-info">
                   <span class="category-icon">${cat.icon}</span>
@@ -307,7 +307,7 @@ export class PDFGenerator {
                 </div>
                 <div class="category-amount">$${cat.amount.toLocaleString()}</div>
               </div>
-            `).join('')}
+            `).join('') : ''}
           </div>
         </div>
         
@@ -323,7 +323,7 @@ export class PDFGenerator {
               </tr>
             </thead>
             <tbody>
-              ${data.transactions.slice(0, 20).map(transaction => `
+              ${Array.isArray(data.transactions) ? data.transactions.slice(0, 20).map(transaction => `
                 <tr>
                   <td>${transaction.date}</td>
                   <td>${transaction.title}</td>
@@ -332,7 +332,7 @@ export class PDFGenerator {
                     ${transaction.type === 'income' ? '+' : '-'}$${Math.abs(transaction.amount).toLocaleString()}
                   </td>
                 </tr>
-              `).join('')}
+              `).join('') : ''}
             </tbody>
           </table>
         </div>

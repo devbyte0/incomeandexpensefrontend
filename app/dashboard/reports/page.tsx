@@ -252,7 +252,7 @@ export default function ReportsPage() {
 
         {/* Monthly Comparison */}
         {comparison && (
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Monthly Comparison</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="text-center">
@@ -295,7 +295,7 @@ export default function ReportsPage() {
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Trends Chart */}
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Spending Trends</h3>
             <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
@@ -339,7 +339,7 @@ export default function ReportsPage() {
           </div>
 
           {/* Category Breakdown */}
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Category Breakdown</h3>
             <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
@@ -366,7 +366,7 @@ export default function ReportsPage() {
         </div>
 
         {/* Detailed Category Analysis */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200">
           <div className="p-4 sm:p-6 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900">Detailed Category Analysis</h3>
           </div>

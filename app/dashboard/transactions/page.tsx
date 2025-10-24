@@ -99,7 +99,7 @@ export default function TransactionsPage() {
       </div>
 
       {/* Filters */}
-      <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+      <div className="card bg-white/80 dark:bg-gray-800/80 rounded-xl backdrop-blur-sm">
         <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm-content">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search */}
@@ -150,7 +150,7 @@ export default function TransactionsPage() {
       </div>
 
       {/* Transactions Table */}
-      <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+      <div className="card bg-white/80 dark:bg-gray-800/80 rounded-xl backdrop-blur-sm">
         <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm-content p-0">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
