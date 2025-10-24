@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { usersAPI } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { 
@@ -12,6 +12,7 @@ import {
   Palette,
   Bell,
   Save,
+  Camera,
   Edit,
   Sun,
   Moon
@@ -142,6 +143,7 @@ export default function ProfilePage() {
     'Asia/Kolkata', 'Australia/Sydney', 'Pacific/Auckland'
   ]
 
+  // Show loading state if user data is not available
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 relative overflow-hidden">
@@ -157,6 +159,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+      {/* Background Animations */}
       {preferences.theme === 'light' && <DaySkyAnimation />}
       {preferences.theme === 'dark' && <StarfieldBackground />}
       
@@ -183,8 +186,6 @@ export default function ProfilePage() {
           </div>
           <div className="p-4 sm:p-6">
             <form onSubmit={handleProfileSubmit} className="space-y-6">
-<<<<<<< HEAD
-=======
               {/* Avatar Section */}
               <div className="flex flex-col sm:flex-row items-center gap-6">
                 <div className="relative">
@@ -221,7 +222,6 @@ export default function ProfilePage() {
               </div>
 
               {/* Form Fields */}
->>>>>>> d12336ba2fc10c2fa1379a40f604f9d4c1d7ffad
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
@@ -284,7 +284,7 @@ export default function ProfilePage() {
                     className="input w-full bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
                   >
                     {currencies.map((currency) => (
-                      <option key={currency.code} value={currency.code}>
+                      <option key={currency.code} value={currency.code} className="bg-white dark:bg-gray-900">
                         {currency.symbol} {currency.name} ({currency.code})
                       </option>
                     ))}
@@ -304,7 +304,9 @@ export default function ProfilePage() {
                     className="input w-full bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
                   >
                     {timezones.map((tz) => (
-                      <option key={tz} value={tz}>{tz}</option>
+                      <option key={tz} value={tz} className="bg-white dark:bg-gray-900">
+                        {tz}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -346,6 +348,7 @@ export default function ProfilePage() {
           </div>
           <div className="p-4 sm:p-6">
             <form onSubmit={handlePreferencesSubmit} className="space-y-6">
+              {/* Theme */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                   <Palette className="h-4 w-4 inline mr-2" />
@@ -362,7 +365,9 @@ export default function ProfilePage() {
                     }`}
                   >
                     <div className="text-center">
-                      <Sun className={`h-6 w-6 mx-auto mb-2 ${preferences.theme === 'light' ? 'text-yellow-500' : 'text-gray-400'}`} />
+                      <Sun className={`h-6 w-6 mx-auto mb-2 ${
+                        preferences.theme === 'light' ? 'text-yellow-500' : 'text-gray-400'
+                      }`} />
                       <div className="font-medium">Light</div>
                     </div>
                   </button>
@@ -376,32 +381,37 @@ export default function ProfilePage() {
                     }`}
                   >
                     <div className="text-center">
-                      <Moon className={`h-6 w-6 mx-auto mb-2 ${preferences.theme === 'dark' ? 'text-blue-400' : 'text-gray-400'}`} />
+                      <Moon className={`h-6 w-6 mx-auto mb-2 ${
+                        preferences.theme === 'dark' ? 'text-blue-400' : 'text-gray-400'
+                      }`} />
                       <div className="font-medium">Dark</div>
                     </div>
                   </button>
                 </div>
               </div>
 
+              {/* Budget Alerts */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">
                   <Bell className="h-4 w-4 inline mr-2" />
                   Budget Alerts
                 </label>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Budget Alerts</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Get notified when approaching budget limits</p>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Budget Alerts</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Get notified when approaching budget limits</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={preferences.budgetAlerts}
+                        onChange={(e) => handlePreferenceChange('budgetAlerts', e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-800 after:border-gray-300 dark:after:border-gray-700 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                    </label>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={preferences.budgetAlerts}
-                      onChange={(e) => handlePreferenceChange('budgetAlerts', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-800 after:border-gray-300 dark:after:border-gray-700 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                  </label>
                 </div>
               </div>
 
@@ -424,6 +434,7 @@ export default function ProfilePage() {
             </form>
           </div>
         </div>
+
       </div>
     </div>
   )
