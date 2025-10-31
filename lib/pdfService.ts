@@ -1,5 +1,5 @@
 // Simple PDF generation using browser's built-in capabilities
-// This will work without external dependencies
+// Works without external dependencies
 
 export interface PDFData {
   title: string
@@ -30,19 +30,13 @@ export class PDFGenerator {
   public generatePDF(data: PDFData): Promise<Blob> {
     return new Promise((resolve) => {
       try {
-        // Create HTML content for PDF
         const htmlContent = this.generateHTMLContent(data)
-        
-        // Create a new window with the HTML content
         const printWindow = window.open('', '_blank')
-        if (!printWindow) {
-          throw new Error('Unable to open print window')
-        }
+        if (!printWindow) throw new Error('Unable to open print window')
 
         printWindow.document.write(htmlContent)
         printWindow.document.close()
 
-        // Wait for content to load, then trigger print
         printWindow.onload = () => {
           setTimeout(() => {
             printWindow.print()
@@ -64,11 +58,7 @@ export class PDFGenerator {
       <head>
         <title>${data.title}</title>
         <style>
-          @media print {
-            body { margin: 0; }
-            .no-print { display: none; }
-          }
-          
+          @media print { body { margin: 0; } .no-print { display: none; } }
           body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
@@ -78,7 +68,6 @@ export class PDFGenerator {
             padding: 20px;
             background: white;
           }
-          
           .header {
             background: linear-gradient(135deg, #3B82F6, #1D4ED8);
             color: white;
@@ -87,26 +76,14 @@ export class PDFGenerator {
             margin-bottom: 30px;
             text-align: center;
           }
-          
-          .header h1 {
-            margin: 0;
-            font-size: 28px;
-            font-weight: bold;
-          }
-          
-          .header .subtitle {
-            margin: 10px 0 0 0;
-            font-size: 16px;
-            opacity: 0.9;
-          }
-          
+          .header h1 { margin: 0; font-size: 28px; font-weight: bold; }
+          .header .subtitle { margin: 10px 0 0 0; font-size: 16px; opacity: 0.9; }
           .summary-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
           }
-          
           .summary-card {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
@@ -115,54 +92,22 @@ export class PDFGenerator {
             text-align: center;
             transition: transform 0.2s;
           }
-          
-          .summary-card.income {
-            border-left: 4px solid #10b981;
-          }
-          
-          .summary-card.expense {
-            border-left: 4px solid #ef4444;
-          }
-          
-          .summary-card.balance {
-            border-left: 4px solid #3b82f6;
-          }
-          
-          .summary-card.savings {
-            border-left: 4px solid #8b5cf6;
-          }
-          
-          .summary-card h3 {
-            margin: 0 0 10px 0;
-            font-size: 14px;
-            color: #64748b;
-            font-weight: 500;
-          }
-          
-          .summary-card .value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #1e293b;
-          }
-          
-          .section {
-            margin-bottom: 40px;
-          }
-          
+          .summary-card.income { border-left: 4px solid #10b981; }
+          .summary-card.expense { border-left: 4px solid #ef4444; }
+          .summary-card.balance { border-left: 4px solid #3b82f6; }
+          .summary-card.savings { border-left: 4px solid #8b5cf6; }
+          .summary-card h3 { margin: 0 0 10px 0; font-size: 14px; color: #64748b; font-weight: 500; }
+          .summary-card .value { font-size: 24px; font-weight: bold; color: #1e293b; }
+          .section { margin-bottom: 40px; }
           .section h2 {
-            color: #1e293b;
-            font-size: 20px;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e2e8f0;
+            color: #1e293b; font-size: 20px; margin-bottom: 20px;
+            padding-bottom: 10px; border-bottom: 2px solid #e2e8f0;
           }
-          
           .categories-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
           }
-          
           .category-item {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
@@ -172,90 +117,32 @@ export class PDFGenerator {
             align-items: center;
             justify-content: space-between;
           }
-          
-          .category-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-          }
-          
-          .category-icon {
-            font-size: 20px;
-          }
-          
-          .category-name {
-            font-weight: 500;
-            color: #1e293b;
-          }
-          
-          .category-amount {
-            font-weight: bold;
-            color: #1e293b;
-          }
-          
-          .category-percentage {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 2px;
-          }
-          
+          .category-info { display: flex; align-items: center; gap: 10px; }
+          .category-icon { font-size: 20px; }
+          .category-name { font-weight: 500; color: #1e293b; }
+          .category-amount { font-weight: bold; color: #1e293b; }
+          .category-percentage { font-size: 12px; color: #64748b; margin-top: 2px; }
           .transactions-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
           }
-          
-          .transactions-table th,
-          .transactions-table td {
+          .transactions-table th, .transactions-table td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #e2e8f0;
           }
-          
-          .transactions-table th {
-            background: #f8fafc;
-            font-weight: 600;
-            color: #374151;
-          }
-          
-          .transactions-table .amount {
-            font-weight: 500;
-          }
-          
-          .transactions-table .amount.income {
-            color: #10b981;
-          }
-          
-          .transactions-table .amount.expense {
-            color: #ef4444;
-          }
-          
-          .footer {
-            margin-top: 50px;
-            padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
-            text-align: center;
-            color: #64748b;
-            font-size: 14px;
-          }
-          
+          .transactions-table th { background: #f8fafc; font-weight: 600; color: #374151; }
+          .transactions-table .amount { font-weight: 500; }
+          .transactions-table .amount.income { color: #10b981; }
+          .transactions-table .amount.expense { color: #ef4444; }
+          .footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px; }
           .print-button {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: fixed; top: 20px; right: 20px; background: #3b82f6;
+            color: white; border: none; padding: 12px 24px; border-radius: 8px;
+            cursor: pointer; font-weight: 500; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
           }
-          
-          .print-button:hover {
-            background: #2563eb;
-          }
+          .print-button:hover { background: #2563eb; }
         </style>
       </head>
       <body>
@@ -263,9 +150,7 @@ export class PDFGenerator {
         
         <div class="header">
           <h1>${data.title}</h1>
-          <div class="subtitle">
-            <strong>Generated:</strong> ${data.generatedAt}
-          </div>
+          <div class="subtitle"><strong>Generated:</strong> ${data.generatedAt}</div>
         </div>
         
         <div class="summary-grid">
@@ -290,18 +175,18 @@ export class PDFGenerator {
         <div class="section">
           <h2>📊 Category Breakdown</h2>
           <div class="categories-grid">
-            ${Array.isArray(data.categories) ? data.categories.map(cat => `
+            ${data.categories.map(cat => `
               <div class="category-item">
                 <div class="category-info">
                   <span class="category-icon">${cat.icon}</span>
                   <div>
                     <div class="category-name">${cat.name}</div>
-                    <div class="category-percentage">${(typeof cat.percentage === 'number' ? cat.percentage : 0).toFixed(1)}%</div>
+                    <div class="category-percentage">${cat.percentage.toFixed(1)}%</div>
                   </div>
                 </div>
-                <div class="category-amount">$${(typeof cat.amount === 'number' ? cat.amount : 0).toLocaleString()}</div>
+                <div class="category-amount">$${cat.amount.toLocaleString()}</div>
               </div>
-            `).join('') : ''}
+            `).join('')}
           </div>
         </div>
         
@@ -317,16 +202,14 @@ export class PDFGenerator {
               </tr>
             </thead>
             <tbody>
-              ${Array.isArray(data.transactions) ? data.transactions.slice(0, 20).map(transaction => `
+              ${data.transactions.map(tx => `
                 <tr>
-                  <td>${transaction.date}</td>
-                  <td>${transaction.title}</td>
-                  <td>${transaction.category}</td>
-                  <td class="amount ${transaction.type}">
-                    ${transaction.type === 'income' ? '+' : '-'}$${Math.abs(typeof transaction.amount === 'number' ? transaction.amount : 0).toLocaleString()}
-                  </td>
+                  <td>${tx.date}</td>
+                  <td>${tx.title}</td>
+                  <td>${tx.category}</td>
+                  <td class="amount ${tx.type}">${tx.type === 'income' ? '+' : '-'}$${tx.amount.toLocaleString()}</td>
                 </tr>
-              `).join('') : ''}
+              `).join('')}
             </tbody>
           </table>
         </div>
@@ -341,10 +224,7 @@ export class PDFGenerator {
   }
 
   public downloadPDF(data: PDFData, filename: string = 'financial-report.pdf') {
-    this.generatePDF(data).then(() => {
-      // The PDF will be generated and opened for printing
-      // User can save it as PDF from the print dialog
-    })
+    this.generatePDF(data)
   }
 }
 
@@ -357,40 +237,27 @@ export const formatDataForPDF = (
 ): PDFData => {
   const now = new Date()
   const generatedAt = now.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
   })
 
-  // Extract summary from analyticsData if available
-  let totalIncome = 0, totalExpenses = 0, netBalance = 0, savingsRate = 0
-  
+  // Summary
+  let totalIncome = 0, totalExpenses = 0
   if (analyticsData?.summary) {
     totalIncome = analyticsData.summary.income?.total || 0
     totalExpenses = analyticsData.summary.expense?.total || 0
-    netBalance = analyticsData.summary.net || 0
-    savingsRate = totalIncome > 0 ? ((netBalance / totalIncome) * 100) : 0
   } else if (Array.isArray(transactionsData)) {
-    // Fallback: compute from transactions data
     transactionsData.forEach((tx: any) => {
       if (tx.type === 'income') totalIncome += tx.amount || 0
-      if (tx.type === 'expense') totalExpenses += tx.amount || 0
+      else totalExpenses += tx.amount || 0
     })
-    netBalance = totalIncome - totalExpenses
-    savingsRate = totalIncome > 0 ? ((netBalance / totalIncome) * 100) : 0
   }
+  const netBalance = totalIncome - totalExpenses
+  const savingsRate = totalIncome > 0 ? (netBalance / totalIncome) * 100 : 0
 
-  const summary = {
-    totalIncome,
-    totalExpenses,
-    netBalance,
-    savingsRate,
-  }
+  const summary: PDFData['summary'] = { totalIncome, totalExpenses, netBalance, savingsRate }
 
-  // Format categories data
-  let categories = []
+  // Categories
+  let categories: PDFData['categories'] = []
   if (categoriesData?.categoryAnalysis) {
     categories = categoriesData.categoryAnalysis.map((cat: any) => ({
       name: cat.categoryName || cat.name || 'Uncategorized',
@@ -409,15 +276,15 @@ export const formatDataForPDF = (
     }))
   }
 
-  // Format transactions data
-  let transactions = []
+  // Transactions
+  let transactions: PDFData['transactions'] = []
   if (Array.isArray(transactionsData)) {
-    transactions = transactionsData.slice(0, 50).map((transaction: any) => ({
-      date: new Date(transaction.date || new Date()).toLocaleDateString(),
-      title: transaction.title || transaction.description || 'Transaction',
-      category: transaction.category?.name || transaction.category || 'Uncategorized',
-      amount: Number(transaction.amount || 0),
-      type: transaction.type || 'expense',
+    transactions = transactionsData.slice(0, 50).map((tx: any) => ({
+      date: new Date(tx.date || new Date()).toLocaleDateString(),
+      title: tx.title || tx.description || 'Transaction',
+      category: tx.category?.name || tx.category || 'Uncategorized',
+      amount: Number(tx.amount || 0),
+      type: tx.type === 'income' ? 'income' : 'expense',
     }))
   }
 
