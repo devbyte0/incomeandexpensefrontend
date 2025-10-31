@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react'
+import DaySkyAnimation from '@/components/DaySkyAnimation'
+import StarfieldBackground from '@/components/StarfieldBackground'
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -16,8 +18,15 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
   const { register } = useAuth()
   const router = useRouter()
+
+  // Detect theme from system preference
+  useEffect(() => {
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    setTheme(isDark ? 'dark' : 'light')
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,6 +45,8 @@ export default function RegisterPage() {
 
     try {
       await register(formData.name, formData.email, formData.password)
+      // Show success message about email verification
+      alert('Registration successful! Please check your email to verify your account.')
       router.push('/dashboard')
     } catch (error) {
       // Error is handled by the auth context
@@ -52,8 +63,12 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative">
+      {/* Background Animations */}
+      {theme === 'light' && <DaySkyAnimation />}
+      {theme === 'dark' && <StarfieldBackground />}
+      
+      <div className="max-w-md w-full space-y-8 relative z-10">
         <div>
           <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-primary-100">
             <span className="text-2xl">💰</span>

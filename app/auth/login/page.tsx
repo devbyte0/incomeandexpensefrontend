@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
+import DaySkyAnimation from '@/components/DaySkyAnimation'
+import StarfieldBackground from '@/components/StarfieldBackground'
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -13,20 +15,48 @@ export default function LoginPage() {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const [showOTPModal, setShowOTPModal] = useState(false)
+  const [otpCode, setOtpCode] = useState('')
+  const [otpLoading, setOtpLoading] = useState(false)
+  const { login, verifyOTP } = useAuth()
   const router = useRouter()
+
+  // Detect theme from system preference
+  useEffect(() => {
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    setTheme(isDark ? 'dark' : 'light')
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      await login(formData.email, formData.password)
-      router.push('/dashboard')
+      const requires2FA = await login(formData.email, formData.password)
+      if (requires2FA) {
+        setShowOTPModal(true)
+      } else {
+        router.push('/dashboard')
+      }
     } catch (error) {
       // Error is handled by the auth context
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleOTPSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setOtpLoading(true)
+
+    try {
+      await verifyOTP(formData.email, otpCode)
+      router.push('/dashboard')
+    } catch (error) {
+      // Error is handled by the auth context
+    } finally {
+      setOtpLoading(false)
     }
   }
 
@@ -38,8 +68,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative">
+      {/* Background Animations */}
+      {theme === 'light' && <DaySkyAnimation />}
+      {theme === 'dark' && <StarfieldBackground />}
+      
+      <div className="max-w-md w-full space-y-8 relative z-10">
         <div>
           <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-primary-100">
             <span className="text-2xl">💰</span>
@@ -148,6 +182,63 @@ export default function LoginPage() {
             </button>
           </div>
         </form>
+
+        {/* OTP Modal */}
+        {showOTPModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                Two-Factor Authentication
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                We've sent a 6-digit verification code to your email. Please enter it below.
+              </p>
+              
+              <form onSubmit={handleOTPSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="otp" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Verification Code
+                  </label>
+                  <input
+                    id="otp"
+                    type="text"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    required
+                    maxLength={6}
+                    className="input w-full text-center text-2xl tracking-widest dark:bg-gray-700 dark:text-gray-100"
+                    placeholder="000000"
+                    autoComplete="one-time-code"
+                  />
+                </div>
+
+                <div className="flex space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowOTPModal(false)
+                      setOtpCode('')
+                    }}
+                    className="btn btn-secondary btn-md flex-1 dark:bg-gray-700 dark:text-gray-100"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={otpLoading || otpCode.length !== 6}
+                    className="btn btn-primary btn-md flex-1 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {otpLoading ? (
+                      <div className="loading-spinner"></div>
+                    ) : (
+                      'Verify'
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

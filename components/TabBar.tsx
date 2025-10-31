@@ -24,14 +24,13 @@ const mainNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Add', href: '/dashboard/transactions/new', icon: Plus },
   { name: 'Transactions', href: '/dashboard/transactions', icon: CreditCard },
-  { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+  { name: 'Reports', href: '/dashboard/reports', icon: FileText },
   { name: 'Profile', href: '/dashboard/profile', icon: User },
 ]
 
 // Additional navigation items (in dropdown)
 const additionalNavigation = [
   { name: 'Categories', href: '/dashboard/categories', icon: PieChart },
-  { name: 'Reports', href: '/dashboard/reports', icon: FileText },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 

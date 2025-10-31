@@ -13,20 +13,8 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { isAuthenticated, loading } = useAuth()
+  const { isAuthenticated, loading, user } = useAuth()
   const router = useRouter()
-
-  // Use local theme detection (SSR safe)
-  const [theme, setTheme] = useState<'light'|'dark'>('light');
-  useEffect(() => {
-    const html = document.documentElement;
-    setTheme(html.classList.contains('dark') ? 'dark' : 'light');
-    const observer = new MutationObserver(() => {
-      setTheme(html.classList.contains('dark') ? 'dark' : 'light');
-    });
-    observer.observe(html, { attributes:true, attributeFilter:['class'] });
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -48,13 +36,16 @@ export default function DashboardLayout({
 
   return (
     <>
-      {theme === 'dark' ? <StarfieldBackground /> : <DaySkyAnimation />}
+      {/* Background Animations */}
+      {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
+      {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
+      
       <div className="relative z-10 min-h-screen bg-gray-50 dark:bg-gray-900">
         <TabBar />
         <div className="lg:pl-64">
           <Header />
           <main className="py-4 sm:py-6 pb-20 lg:pb-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-900">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               {children}
             </div>
           </main>

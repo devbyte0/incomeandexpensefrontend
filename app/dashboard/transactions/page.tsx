@@ -15,13 +15,15 @@ import {
   Trash2,
   Eye,
   X,
-  FileText
+  FileText,
+  Download
 } from 'lucide-react'
 import { Transaction } from '@/types'
 import toast from 'react-hot-toast'
 import DaySkyAnimation from '@/components/DaySkyAnimation'
 import StarfieldBackground from '@/components/StarfieldBackground'
 import { useAuth } from '@/contexts/AuthContext'
+import { PDFGenerator, formatDataForPDF } from '@/lib/pdfService'
 
 export default function TransactionsPage() {
   const { user } = useAuth()
@@ -64,6 +66,52 @@ export default function TransactionsPage() {
 
   const handleView = (transaction: Transaction) => {
     setViewTransaction(transaction)
+  }
+
+  const handleGeneratePDF = async (transaction: Transaction) => {
+    try {
+      const pdfData = {
+        title: `Transaction Receipt - ${transaction.title}`,
+        generatedAt: new Date().toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        summary: {
+          totalIncome: transaction.type === 'income' ? transaction.amount : 0,
+          totalExpenses: transaction.type === 'expense' ? transaction.amount : 0,
+          netBalance: transaction.type === 'income' ? transaction.amount : -transaction.amount,
+          savingsRate: 0
+        },
+        categories: [{
+          name: transaction.category.name,
+          amount: transaction.amount,
+          percentage: 100,
+          icon: transaction.category.icon,
+          color: transaction.category.color
+        }],
+        transactions: [{
+          date: new Date(transaction.date).toLocaleDateString(),
+          title: transaction.title,
+          category: transaction.category.name,
+          amount: transaction.amount,
+          type: transaction.type
+        }]
+      }
+
+      const generator = new PDFGenerator()
+      const filename = `transaction-${transaction._id}-${new Date().toISOString().split('T')[0]}.pdf`
+      
+      await generator.generatePDF(pdfData)
+      generator.downloadPDF(pdfData, filename)
+      
+      toast.success('Transaction PDF generated successfully!')
+    } catch (error) {
+      console.error('PDF generation error:', error)
+      toast.error('Failed to generate PDF. Please try again.')
+    }
   }
 
   const handleFilterChange = (key: string, value: string) => {
@@ -560,6 +608,13 @@ export default function TransactionsPage() {
                 className="btn btn-secondary btn-md"
               >
                 Close
+              </button>
+              <button
+                onClick={() => handleGeneratePDF(viewTransaction)}
+                className="btn btn-secondary btn-md inline-flex items-center"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download PDF
               </button>
               <Link
                 href={`/dashboard/transactions/edit/${viewTransaction._id}`}

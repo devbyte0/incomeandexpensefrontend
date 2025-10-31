@@ -6,12 +6,17 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { transactionsAPI, categoriesAPI } from '@/lib/api'
 import { ArrowLeft, Save, X } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useAuth } from '@/contexts/AuthContext'
+import DaySkyAnimation from '@/components/DaySkyAnimation'
+import StarfieldBackground from '@/components/StarfieldBackground'
 
-export default function EditTransactionPage({ theme = 'light' }: { theme?: 'light' | 'dark' }) {
+export default function EditTransactionPage() {
   const params = useParams()
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { user } = useAuth()
   const transactionId = params.id as string
+
 
   const [formData, setFormData] = useState({
     title: '',
@@ -22,12 +27,14 @@ export default function EditTransactionPage({ theme = 'light' }: { theme?: 'ligh
     date: '',
   })
 
-  const { data: transaction, isLoading: transactionLoading } = useQuery({
-    queryKey: ['transaction', transactionId],
-    queryFn: () => transactionsAPI.getTransaction(transactionId),
-    select: (res) => res.data.data,
-    enabled: !!transactionId,
-  })
+const { data: transaction, isLoading: transactionLoading } = useQuery({
+  queryKey: ['transaction', transactionId],
+  queryFn: () => transactionsAPI.getTransaction(transactionId),
+  select: (res) => res.data.data.transaction, // ✅ extract the actual transaction object
+  enabled: !!transactionId,
+})
+
+  console.log(transaction)
 
   const { data: categoriesData } = useQuery({
     queryKey: ['categories'],
@@ -37,18 +44,24 @@ export default function EditTransactionPage({ theme = 'light' }: { theme?: 'ligh
 
   const categories = Array.isArray(categoriesData) ? categoriesData : []
 
-  useEffect(() => {
-    if (transaction) {
-      setFormData({
-        title: transaction.title || '',
-        description: transaction.description || '',
-        amount: transaction.amount?.toString() || '',
-        type: transaction.type || 'expense',
-        category: transaction.category?._id || '',
-        date: transaction.date ? new Date(transaction.date).toISOString().split('T')[0] : '',
-      })
-    }
-  }, [transaction])
+useEffect(() => {
+  if (transaction) {
+    console.log('Loaded transaction:', transaction)
+    setFormData({
+      title: transaction.title || '',
+      description: transaction.description || '',
+      amount: transaction.amount ? transaction.amount.toString() : '',
+      type: transaction.type || 'expense',
+      category:
+        typeof transaction.category === 'object'
+          ? transaction.category._id
+          : transaction.category || '',
+      date: transaction.date
+        ? new Date(transaction.date).toISOString().split('T')[0]
+        : '',
+    })
+  }
+}, [transaction])
 
   const updateMutation = useMutation({
     mutationFn: (data: any) => transactionsAPI.updateTransaction(transactionId, data),
@@ -79,13 +92,13 @@ export default function EditTransactionPage({ theme = 'light' }: { theme?: 'ligh
   }
 
   const themeClasses = {
-    bg: theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50',
-    cardBg: theme === 'dark' ? 'bg-gray-800' : 'bg-white',
-    text: theme === 'dark' ? 'text-gray-100' : 'text-gray-900',
-    textSecondary: theme === 'dark' ? 'text-gray-400' : 'text-gray-600',
-    border: theme === 'dark' ? 'border-gray-700' : 'border-gray-200',
-    inputBg: theme === 'dark' ? 'bg-gray-900' : 'bg-white',
-    hoverBg: theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-100',
+    bg: 'bg-gray-50 dark:bg-gray-900',
+    cardBg: 'bg-white dark:bg-gray-800',
+    text: 'text-gray-900 dark:text-gray-100',
+    textSecondary: 'text-gray-600 dark:text-gray-400',
+    border: 'border-gray-200 dark:border-gray-700',
+    inputBg: 'bg-white dark:bg-gray-700',
+    hoverBg: 'hover:bg-gray-100 dark:hover:bg-gray-700',
   }
 
   if (transactionLoading) {
@@ -111,9 +124,13 @@ export default function EditTransactionPage({ theme = 'light' }: { theme?: 'ligh
   }
 
   return (
-    <div className={`space-y-6 p-4 sm:p-6 lg:p-8 ${themeClasses.bg} min-h-screen`}>
+    <div className={`space-y-6 p-4 sm:p-6 lg:p-8 ${themeClasses.bg} min-h-screen relative`}>
+      {/* Background Animations */}
+      {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
+      {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
+      
       {/* Header */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4 relative z-10">
         <button
           onClick={() => router.back()}
           className={`p-2 rounded-lg transition-colors ${themeClasses.hoverBg}`}
@@ -127,13 +144,13 @@ export default function EditTransactionPage({ theme = 'light' }: { theme?: 'ligh
       </div>
 
       {/* Form */}
-      <div className={`card ${themeClasses.cardBg} border ${themeClasses.border} rounded-xl shadow-sm`}>
+      <div className={`card ${themeClasses.cardBg} border ${themeClasses.border} rounded-xl shadow-sm relative z-10`}>
         <div className="card-content p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Title */}
               <div className="md:col-span-2">
-                <label htmlFor="title" className={`block text-sm font-medium mb-2 ${themeClasses.text}`}>
+                <label htmlFor="title" className={`block text-sm font-medium mb-2 ${themeClasses.text} dark:text-gray-200`}>
                   Title *
                 </label>
                 <input
@@ -142,7 +159,7 @@ export default function EditTransactionPage({ theme = 'light' }: { theme?: 'ligh
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
-                  className={`input w-full ${themeClasses.inputBg} ${themeClasses.text} border ${themeClasses.border} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500`}
+                  className={`input w-full ${themeClasses.inputBg} ${themeClasses.text} border ${themeClasses.border} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400`}
                   placeholder="Enter transaction title"
                   required
                 />
@@ -150,7 +167,7 @@ export default function EditTransactionPage({ theme = 'light' }: { theme?: 'ligh
 
               {/* Description */}
               <div className="md:col-span-2">
-                <label htmlFor="description" className={`block text-sm font-medium mb-2 ${themeClasses.text}`}>
+                <label htmlFor="description" className={`block text-sm font-medium mb-2 ${themeClasses.text} dark:text-gray-200`}>
                   Description
                 </label>
                 <textarea
@@ -159,14 +176,14 @@ export default function EditTransactionPage({ theme = 'light' }: { theme?: 'ligh
                   value={formData.description}
                   onChange={handleChange}
                   rows={3}
-                  className={`input w-full ${themeClasses.inputBg} ${themeClasses.text} border ${themeClasses.border} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500`}
+                  className={`input w-full ${themeClasses.inputBg} ${themeClasses.text} border ${themeClasses.border} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400`}
                   placeholder="Enter transaction description"
                 />
               </div>
 
               {/* Amount */}
               <div>
-                <label htmlFor="amount" className={`block text-sm font-medium mb-2 ${themeClasses.text}`}>
+                <label htmlFor="amount" className={`block text-sm font-medium mb-2 ${themeClasses.text} dark:text-gray-200`}>
                   Amount *
                 </label>
                 <div className="relative">
@@ -181,7 +198,7 @@ export default function EditTransactionPage({ theme = 'light' }: { theme?: 'ligh
                     onChange={handleChange}
                     step="0.01"
                     min="0"
-                    className={`input w-full pl-7 ${themeClasses.inputBg} ${themeClasses.text} border ${themeClasses.border} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500`}
+                    className={`input w-full pl-7 ${themeClasses.inputBg} ${themeClasses.text} border ${themeClasses.border} rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400`}
                     placeholder="0.00"
                     required
                   />
@@ -190,7 +207,7 @@ export default function EditTransactionPage({ theme = 'light' }: { theme?: 'ligh
 
               {/* Type */}
               <div>
-                <label htmlFor="type" className={`block text-sm font-medium mb-2 ${themeClasses.text}`}>
+                <label htmlFor="type" className={`block text-sm font-medium mb-2 ${themeClasses.text} dark:text-gray-200`}>
                   Type *
                 </label>
                 <select
@@ -198,7 +215,7 @@ export default function EditTransactionPage({ theme = 'light' }: { theme?: 'ligh
                   name="type"
                   value={formData.type}
                   onChange={handleChange}
-                  className={`input w-full ${themeClasses.inputBg} ${themeClasses.text} border ${themeClasses.border} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500`}
+                  className={`input w-full ${themeClasses.inputBg} ${themeClasses.text} border ${themeClasses.border} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400`}
                   required
                 >
                   <option value="expense">Expense</option>
@@ -208,7 +225,7 @@ export default function EditTransactionPage({ theme = 'light' }: { theme?: 'ligh
 
               {/* Category */}
               <div>
-                <label htmlFor="category" className={`block text-sm font-medium mb-2 ${themeClasses.text}`}>
+                <label htmlFor="category" className={`block text-sm font-medium mb-2 ${themeClasses.text} dark:text-gray-200`}>
                   Category *
                 </label>
                 <select
@@ -216,7 +233,7 @@ export default function EditTransactionPage({ theme = 'light' }: { theme?: 'ligh
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
-                  className={`input w-full ${themeClasses.inputBg} ${themeClasses.text} border ${themeClasses.border} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500`}
+                  className={`input w-full ${themeClasses.inputBg} ${themeClasses.text} border ${themeClasses.border} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400`}
                   required
                 >
                   <option value="">Select a category</option>
@@ -232,7 +249,7 @@ export default function EditTransactionPage({ theme = 'light' }: { theme?: 'ligh
 
               {/* Date */}
               <div>
-                <label htmlFor="date" className={`block text-sm font-medium mb-2 ${themeClasses.text}`}>
+                <label htmlFor="date" className={`block text-sm font-medium mb-2 ${themeClasses.text} dark:text-gray-200`}>
                   Date *
                 </label>
                 <input
@@ -241,7 +258,7 @@ export default function EditTransactionPage({ theme = 'light' }: { theme?: 'ligh
                   name="date"
                   value={formData.date}
                   onChange={handleChange}
-                  className={`input w-full ${themeClasses.inputBg} ${themeClasses.text} border ${themeClasses.border} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500`}
+                  className={`input w-full ${themeClasses.inputBg} ${themeClasses.text} border ${themeClasses.border} rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400`}
                   required
                 />
               </div>

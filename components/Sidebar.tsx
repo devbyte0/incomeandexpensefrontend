@@ -26,9 +26,8 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Add Transaction', href: '/dashboard/transactions/new', icon: Plus },
   { name: 'Transactions', href: '/dashboard/transactions', icon: CreditCard },
-  { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-  { name: 'Categories', href: '/dashboard/categories', icon: PieChart },
   { name: 'Reports', href: '/dashboard/reports', icon: FileText },
+  { name: 'Categories', href: '/dashboard/categories', icon: PieChart },
   { name: 'Profile', href: '/dashboard/profile', icon: User },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]

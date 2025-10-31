@@ -58,11 +58,33 @@ export const authAPI = {
     api.post('/auth/login', data),
   
   logout: () => api.post('/auth/logout'),
+  getSessions: () => api.get('/auth/sessions'),
+  revokeCurrentSession: () => api.post('/auth/sessions/revoke'),
   
   getMe: () => api.get('/auth/me'),
   
   updatePassword: (data: { currentPassword: string; newPassword: string }) =>
     api.put('/auth/password', data),
+  
+  verifyEmail: (token: string) =>
+    api.get(`/auth/verify-email?token=${token}`),
+  
+  resendVerification: () =>
+    api.post('/auth/resend-verification'),
+  
+  forgotPassword: (data: { email: string }) =>
+    api.post('/auth/forgot-password', data),
+  
+  resetPassword: (data: { token: string; newPassword: string }) =>
+    api.post('/auth/reset-password', data),
+  
+  verifyOTP: (data: { email: string; otp: string }) =>
+    api.post('/auth/verify-otp', data),
+  
+  enable2FA: () => api.post('/auth/enable-2fa'),
+  
+  disable2FA: (data: { password: string }) =>
+    api.post('/auth/disable-2fa', data),
 }
 
 // Users API
@@ -76,6 +98,12 @@ export const usersAPI = {
   uploadAvatar: (data: { avatarUrl: string }) => api.post('/users/avatar', data),
   
   deleteAccount: (data: { password: string }) => api.delete('/users/account', { data }),
+  
+  requestEmailChange: (data: { newEmail: string }) => 
+    api.post('/users/request-email-change', data),
+  
+  verifyEmailChange: (data: { otp: string }) =>
+    api.post('/users/verify-email-change', data),
 }
 
 // Categories API

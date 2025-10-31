@@ -17,10 +17,12 @@ import {
 import toast from 'react-hot-toast'
 import DaySkyAnimation from '@/components/DaySkyAnimation'
 import StarfieldBackground from '@/components/StarfieldBackground'
+import { authAPI, usersAPI } from '@/lib/api'
 
 export default function SettingsPage() {
   const { user, logout } = useAuth()
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deletePassword, setDeletePassword] = useState('')
   const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -33,6 +35,13 @@ export default function SettingsPage() {
     confirm: false
   })
 
+  const [showSessionsModal, setShowSessionsModal] = useState(false)
+  const [sessions, setSessions] = useState<any[]>([])
+  const [sessionsLoading, setSessionsLoading] = useState(false)
+  const [show2FAModal, setShow2FAModal] = useState(false)
+  const [twoFactorPassword, setTwoFactorPassword] = useState('')
+  const [twoFactorLoading, setTwoFactorLoading] = useState(false)
+
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPasswordData({
       ...passwordData,
@@ -40,7 +49,7 @@ export default function SettingsPage() {
     })
   }
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (passwordData.newPassword !== passwordData.confirmPassword) {
@@ -53,10 +62,17 @@ export default function SettingsPage() {
       return
     }
 
-    // In a real app, this would call the API
-    toast.success('Password updated successfully!')
-    setShowPasswordModal(false)
-    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
+    try {
+      await authAPI.updatePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      })
+      toast.success('Password updated successfully!')
+      setShowPasswordModal(false)
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
+    } catch (err) {
+      // Error is handled by interceptor
+    }
   }
 
   const handleDataExport = () => {
@@ -64,11 +80,84 @@ export default function SettingsPage() {
     toast.success('Data export started! You will receive an email when ready.')
   }
 
-  const handleAccountDeletion = () => {
-    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-      // In a real app, this would call the delete account API
-      toast.success('Account deletion request submitted')
+  const handleClearCache = () => {
+    // Clear localStorage and sessionStorage
+    localStorage.clear()
+    sessionStorage.clear()
+    toast.success('Cache cleared successfully!')
+  }
+
+  const handleAccountDeletion = async () => {
+    if (!deletePassword) {
+      toast.error('Please enter your password')
+      return
+    }
+    try {
+      await usersAPI.deleteAccount({ password: deletePassword })
+      toast.success('Account deleted. Goodbye!')
       setShowDeleteModal(false)
+      setDeletePassword('')
+      window.location.href = '/auth/login'
+    } catch (err) {
+      // handled by interceptor
+    }
+  }
+
+  const openSessions = async () => {
+    setShowSessionsModal(true)
+    setSessionsLoading(true)
+    try {
+      const { data } = await authAPI.getSessions()
+      setSessions(data?.data?.sessions || [])
+    } catch (err) {
+    } finally {
+      setSessionsLoading(false)
+    }
+  }
+
+  const revokeCurrentSession = async () => {
+    try {
+      await authAPI.revokeCurrentSession()
+      toast.success('Signed out from this device')
+      window.location.href = '/auth/login'
+    } catch {}
+  }
+
+  const handleEnable2FA = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setTwoFactorLoading(true)
+    try {
+      await authAPI.enable2FA()
+      toast.success('Two-factor authentication enabled successfully!')
+      setShow2FAModal(false)
+      setTwoFactorPassword('')
+      // Reload user data to reflect 2FA status
+      window.location.reload()
+    } catch (err) {
+      // Error is handled by interceptor
+    } finally {
+      setTwoFactorLoading(false)
+    }
+  }
+
+  const handleDisable2FA = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!twoFactorPassword) {
+      toast.error('Please enter your password')
+      return
+    }
+    setTwoFactorLoading(true)
+    try {
+      await authAPI.disable2FA({ password: twoFactorPassword })
+      toast.success('Two-factor authentication disabled successfully!')
+      setShow2FAModal(false)
+      setTwoFactorPassword('')
+      // Reload user data to reflect 2FA status
+      window.location.reload()
+    } catch (err) {
+      // Error is handled by interceptor
+    } finally {
+      setTwoFactorLoading(false)
     }
   }
 
@@ -117,10 +206,15 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Two-Factor Authentication</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Add an extra layer of security</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {user?.isTwoFactorEnabled ? 'Enabled' : 'Add an extra layer of security'}
+                </p>
               </div>
-              <button className="btn btn-secondary btn-sm">
-                Enable 2FA
+              <button 
+                onClick={() => setShow2FAModal(true)}
+                className="btn btn-secondary btn-sm"
+              >
+                {user?.isTwoFactorEnabled ? 'Disable 2FA' : 'Enable 2FA'}
               </button>
             </div>
 
@@ -129,7 +223,7 @@ export default function SettingsPage() {
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Login Sessions</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Manage active sessions</p>
               </div>
-              <button className="btn btn-secondary btn-sm">
+              <button onClick={openSessions} className="btn btn-secondary btn-sm">
                 View Sessions
               </button>
             </div>
@@ -208,7 +302,10 @@ export default function SettingsPage() {
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Clear Cache</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Clear local application cache</p>
               </div>
-              <button className="btn btn-secondary btn-sm">
+              <button 
+                onClick={handleClearCache}
+                className="btn btn-secondary btn-sm"
+              >
                 Clear Cache
               </button>
             </div>
@@ -276,11 +373,11 @@ export default function SettingsPage() {
               </div>
               <div>
                 <p className="text-gray-600 dark:text-gray-400">Build</p>
-                <p className="font-medium dark:text-gray-100">2024.01.001</p>
+                <p className="font-medium dark:text-gray-100">2025.10.27</p>
               </div>
               <div>
                 <p className="text-gray-600 dark:text-gray-400">Last Updated</p>
-                <p className="font-medium dark:text-gray-100">January 2024</p>
+                <p className="font-medium dark:text-gray-100">October 2025</p>
               </div>
               <div>
                 <p className="text-gray-600 dark:text-gray-400">User ID</p>
@@ -415,9 +512,18 @@ export default function SettingsPage() {
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Delete Account</h3>
                 </div>
                 
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  Are you sure you want to delete your account? This action cannot be undone and will permanently remove all your data.
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  This will permanently remove your account, transactions, and categories. Please confirm by entering your password.
                 </p>
+
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
+                <input
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  className="input w-full mb-6 dark:bg-gray-700 dark:text-gray-100"
+                  placeholder="Enter your password"
+                />
 
                 <div className="flex space-x-3">
                   <button
@@ -433,6 +539,105 @@ export default function SettingsPage() {
                     Cancel
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showSessionsModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl max-w-lg w-full dark:bg-gray-800">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Active Sessions</h3>
+                {sessionsLoading ? (
+                  <div className="flex items-center justify-center h-24"><div className="loading-spinner" /></div>
+                ) : (
+                  <div className="space-y-3">
+                    {sessions.length === 0 && (
+                      <p className="text-sm text-gray-500 dark:text-gray-400">No active sessions.</p>
+                    )}
+                    {sessions.map((s) => (
+                      <div key={s.id} className="flex items-start justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div className="text-sm">
+                          <p className="font-medium text-gray-900 dark:text-gray-100">{s.current ? 'This device' : 'Device'}</p>
+                          <p className="text-gray-600 dark:text-gray-400 break-all">{s.device}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-500">IP: {s.ip}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-500">Last active: {new Date(s.lastActive).toLocaleString()}</p>
+                        </div>
+                        {s.current && (
+                          <button onClick={revokeCurrentSession} className="btn btn-secondary btn-sm">Sign out</button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex justify-end gap-3 mt-6">
+                  <button onClick={() => setShowSessionsModal(false)} className="btn btn-secondary btn-sm">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 2FA Modal */}
+        {show2FAModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl max-w-md w-full dark:bg-gray-800">
+              <div className="p-6">
+                <div className="flex items-center mb-4">
+                  <Shield className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-3" />
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {user?.isTwoFactorEnabled ? 'Disable' : 'Enable'} Two-Factor Authentication
+                  </h3>
+                </div>
+                
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  {user?.isTwoFactorEnabled 
+                    ? 'Enter your password to disable two-factor authentication.' 
+                    : 'Two-factor authentication will be enabled. You will receive a verification code via email on each login.'}
+                </p>
+
+                <form onSubmit={user?.isTwoFactorEnabled ? handleDisable2FA : handleEnable2FA} className="space-y-4">
+                  {user?.isTwoFactorEnabled && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        value={twoFactorPassword}
+                        onChange={(e) => setTwoFactorPassword(e.target.value)}
+                        className="input w-full dark:bg-gray-700 dark:text-gray-100"
+                        placeholder="Enter your password"
+                        required
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShow2FAModal(false)
+                        setTwoFactorPassword('')
+                      }}
+                      className="btn btn-secondary btn-md flex-1 dark:bg-gray-700 dark:text-gray-100"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={twoFactorLoading}
+                      className="btn btn-primary btn-md flex-1 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {twoFactorLoading ? (
+                        <div className="loading-spinner"></div>
+                      ) : (
+                        user?.isTwoFactorEnabled ? 'Disable' : 'Enable'
+                      )}
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>

@@ -23,6 +23,7 @@ interface User {
     budgetAlerts: boolean
   }
   isEmailVerified: boolean
+  isTwoFactorEnabled?: boolean
   lastLogin?: string
   createdAt: string
   updatedAt: string
@@ -31,11 +32,12 @@ interface User {
 interface AuthContextType {
   user: User | null
   loading: boolean
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string) => Promise<boolean>
   register: (name: string, email: string, password: string) => Promise<void>
   logout: () => void
   updateUser: (userData: Partial<User>) => void
   isAuthenticated: boolean
+  verifyOTP: (email: string, otp: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -78,16 +80,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const response = await authAPI.login({ email, password })
+      
+      // Check if 2FA is required
+      if (response.data.requiresTwoFactor) {
+        return true // Return true to indicate 2FA needed
+      }
+      
+      const { user: userData, token } = response.data.data
+      setUser(userData)
+      Cookies.set('token', token, { expires: 7 })
+      toast.success('Login successful!')
+      return false // Return false to indicate login complete
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Login failed'
+      toast.error(message)
+      throw error
+    }
+  }
+
+  const verifyOTP = async (email: string, otp: string) => {
+    try {
+      const response = await authAPI.verifyOTP({ email, otp })
       const { user: userData, token } = response.data.data
       
       setUser(userData)
       Cookies.set('token', token, { expires: 7 })
       toast.success('Login successful!')
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Login failed'
+      const message = error.response?.data?.message || 'Invalid verification code'
       toast.error(message)
       throw error
     }
@@ -134,6 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout,
     updateUser,
     isAuthenticated,
+    verifyOTP,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
