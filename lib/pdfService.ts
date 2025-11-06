@@ -256,17 +256,31 @@ export const formatDataForPDF = (
 
   const summary: PDFData['summary'] = { totalIncome, totalExpenses, netBalance, savingsRate }
 
-  // Categories
   let categories: PDFData['categories'] = []
-  if (categoriesData?.categoryAnalysis) {
-    categories = categoriesData.categoryAnalysis.map((cat: any) => ({
-      name: cat.categoryName || cat.name || 'Uncategorized',
-      amount: Number(cat.total || cat.amount || 0),
-      percentage: Number(cat.percentage || 0),
-      icon: cat.categoryIcon || cat.icon || '📊',
-      color: cat.categoryColor || cat.color || '#3B82F6',
-    }))
-  } else if (Array.isArray(categoriesData)) {
+
+if (Array.isArray(transactionsData)) {
+  const categoryMap: Record<string, any> = {}
+
+  transactionsData.forEach((tx: any) => {
+    const catName = tx.category?.name || tx.category || 'Uncategorized'
+    if (!categoryMap[catName]) {
+      categoryMap[catName] = { 
+        name: catName,
+        amount: 0,
+        icon: tx.category?.icon || '📊',
+        color: tx.category?.color || '#3B82F6'
+      }
+    }
+    categoryMap[catName].amount += Number(tx.amount || 0)
+  })
+
+  const totalAmount = Object.values(categoryMap).reduce((sum, cat: any) => sum + cat.amount, 0)
+
+  categories = Object.values(categoryMap).map((cat: any) => ({
+    ...cat,
+    percentage: totalAmount > 0 ? (cat.amount / totalAmount) * 100 : 0
+  }))
+} else if (Array.isArray(categoriesData)) {
     categories = categoriesData.map((cat: any) => ({
       name: cat.name || cat._id || 'Uncategorized',
       amount: Number(cat.total || cat.amount || 0),

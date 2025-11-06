@@ -5,24 +5,23 @@ import Link from 'next/link'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { transactionsAPI } from '@/lib/api'
 import { format } from 'date-fns'
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  ArrowUpRight, 
+import {
+  Plus,
+  Search,
+  ArrowUpRight,
   ArrowDownRight,
   Edit,
   Trash2,
   Eye,
-  X,
-  FileText,
-  Download
+  Calendar,
+  Download,
 } from 'lucide-react'
 import { Transaction } from '@/types'
 import toast from 'react-hot-toast'
 import DaySkyAnimation from '@/components/DaySkyAnimation'
 import StarfieldBackground from '@/components/StarfieldBackground'
 import { useAuth } from '@/contexts/AuthContext'
+import ViewTransactionModal from '@/components/ViewTransactionModal'
 import { PDFGenerator, formatDataForPDF } from '@/lib/pdfService'
 
 export default function TransactionsPage() {
@@ -30,6 +29,8 @@ export default function TransactionsPage() {
   const [filters, setFilters] = useState({
     search: '',
     type: '',
+    startDate: '',
+    endDate: '',
     page: 1,
     limit: 20,
   })
@@ -47,7 +48,6 @@ export default function TransactionsPage() {
   const transactions = transactionsData?.transactions || []
   const pagination = transactionsData?.pagination
 
-  // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: (id: string) => transactionsAPI.deleteTransaction(id),
     onSuccess: () => {
@@ -60,146 +60,129 @@ export default function TransactionsPage() {
     },
   })
 
-  const handleDelete = (id: string) => {
-    deleteMutation.mutate(id)
-  }
+  const handleDelete = (id: string) => deleteMutation.mutate(id)
+  const handleView = (transaction: Transaction) => setViewTransaction(transaction)
 
-  const handleView = (transaction: Transaction) => {
-    setViewTransaction(transaction)
-  }
+  const handleFilterChange = (key: string, value: string) =>
+    setFilters(prev => ({ ...prev, [key]: value, page: 1 }))
 
-  const handleGeneratePDF = async (transaction: Transaction) => {
-    try {
-      const pdfData = {
-        title: `Transaction Receipt - ${transaction.title}`,
-        generatedAt: new Date().toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        }),
-        summary: {
-          totalIncome: transaction.type === 'income' ? transaction.amount : 0,
-          totalExpenses: transaction.type === 'expense' ? transaction.amount : 0,
-          netBalance: transaction.type === 'income' ? transaction.amount : -transaction.amount,
-          savingsRate: 0
-        },
-        categories: [{
-          name: transaction.category.name,
-          amount: transaction.amount,
-          percentage: 100,
-          icon: transaction.category.icon,
-          color: transaction.category.color
-        }],
-        transactions: [{
-          date: new Date(transaction.date).toLocaleDateString(),
-          title: transaction.title,
-          category: transaction.category.name,
-          amount: transaction.amount,
-          type: transaction.type
-        }]
-      }
+  const handleClearFilters = () =>
+    setFilters({ search: '', type: '', startDate: '', endDate: '', page: 1, limit: 20 })
 
-      const generator = new PDFGenerator()
-      const filename = `transaction-${transaction._id}-${new Date().toISOString().split('T')[0]}.pdf`
-      
-      await generator.generatePDF(pdfData)
-      generator.downloadPDF(pdfData, filename)
-      
-      toast.success('Transaction PDF generated successfully!')
-    } catch (error) {
-      console.error('PDF generation error:', error)
-      toast.error('Failed to generate PDF. Please try again.')
+  const handlePrintPDF = () => {
+    if (!transactions.length) {
+      toast.error('No transactions to print')
+      return
     }
-  }
+    const categoriesData = transactions.map(tx => tx.category)
+    console.log(categoriesData) // or however you fetch it
 
-  const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [key]: value,
-      page: 1, // Reset to first page when filters change
-    }))
-  }
+   const pdfData = formatDataForPDF(
+  null,
+  transactions,
+  categoriesData,
+  'custom date range'
+)
 
-  const handlePageChange = (page: number) => {
-    setFilters(prev => ({ ...prev, page }))
+    const generator = new PDFGenerator()
+    generator.generatePDF(pdfData)
   }
 
   return (
     <div className="space-y-6 relative">
-      {/* Background Animations */}
+      {/* Background */}
       {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
       {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Transactions</h1>
-          <p className="text-gray-600">Manage your income and expenses</p>
-        </div>
-        <Link
-          href="/dashboard/transactions/new"
-          className="btn btn-primary btn-md inline-flex items-center"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Transaction
-        </Link>
-      </div>
+
+      {/* Header Section */}
+
 
       {/* Filters */}
+<div className="card bg-white/80 dark:bg-gray-800/80 rounded-xl backdrop-blur-sm p-4 grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
+
+  {/* Search */}
+  <div className="relative col-span-1 md:col-span-2 w-full">
+    <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+    <input
+      type="text"
+      placeholder="Search transactions..."
+      className="input pl-10 w-full"
+      value={filters.search}
+      onChange={(e) => handleFilterChange('search', e.target.value)}
+    />
+  </div>
+
+  {/* Title & Actions */}
+  <div className="col-span-1 md:col-span-4 flex flex-col md:flex-row md:justify-between md:items-center gap-4 w-full">
+    <div>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        Transactions
+      </h1>
+      <p className="text-gray-600 dark:text-gray-300">
+        Manage your income and expenses
+      </p>
+    </div>
+
+    <div className="flex flex-wrap gap-2">
+      {/* Print PDF Button */}
+      <button
+        onClick={handlePrintPDF}
+        className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+      >
+        <Download className="h-4 w-4" />
+        Print PDF
+      </button>
+
+      {/* Add Transaction Button */}
+      <Link
+        href="/dashboard/transactions/new"
+        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+      >
+        <Plus className="h-4 w-4" />
+        Add Transaction
+      </Link>
+    </div>
+  </div>
+
+  {/* Type Filter */}
+  <select
+    className="input col-span-1 md:col-span-1 w-full"
+    value={filters.type}
+    onChange={(e) => handleFilterChange('type', e.target.value)}
+  >
+    <option value="">All Types</option>
+    <option value="income">Income</option>
+    <option value="expense">Expense</option>
+  </select>
+
+  {/* Date Filters */}
+  <input
+    type="date"
+    className="input col-span-1 md:col-span-1 w-full"
+    value={filters.startDate}
+    onChange={(e) => handleFilterChange('startDate', e.target.value)}
+  />
+  <input
+    type="date"
+    className="input col-span-1 md:col-span-1 w-full"
+    value={filters.endDate}
+    onChange={(e) => handleFilterChange('endDate', e.target.value)}
+  />
+
+  {/* Clear Filters Button */}
+  <button
+    onClick={handleClearFilters}
+    className="btn btn-secondary btn-md col-span-1 md:col-span-1 w-full"
+  >
+    Clear Filters
+  </button>
+
+</div>
+
+
+      {/* Table */}
       <div className="card bg-white/80 dark:bg-gray-800/80 rounded-xl backdrop-blur-sm">
-        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm-content">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Search */}
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search transactions..."
-                className="input pl-10"
-                value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
-              />
-            </div>
-
-            {/* Type Filter */}
-            <select
-              className="input"
-              value={filters.type}
-              onChange={(e) => handleFilterChange('type', e.target.value)}
-            >
-              <option value="">All Types</option>
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
-            </select>
-
-            {/* Limit */}
-            <select
-              className="input"
-              value={filters.limit}
-              onChange={(e) => handleFilterChange('limit', e.target.value)}
-            >
-              <option value="10">10 per page</option>
-              <option value="20">20 per page</option>
-              <option value="50">50 per page</option>
-            </select>
-
-            {/* Clear Filters */}
-            <button
-              onClick={() => setFilters({ search: '', type: '', page: 1, limit: 20 })}
-              className="btn btn-secondary btn-md"
-            >
-              Clear Filters
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Transactions Table */}
-      <div className="card bg-white/80 dark:bg-gray-800/80 rounded-xl backdrop-blur-sm">
-        <div className="card bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm-content p-0">
+        <div className="p-0 overflow-x-auto">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <div className="loading-spinner"></div>
@@ -207,68 +190,46 @@ export default function TransactionsPage() {
           ) : transactions.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg mb-4">No transactions found</p>
-              <Link
-                href="/dashboard/transactions/new"
-                className="btn btn-primary btn-md"
-              >
+              <Link href="/dashboard/transactions/new" className="btn btn-primary btn-md">
                 Add Your First Transaction
               </Link>
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
+              {/* Desktop Table */}
+              <div className="hidden md:block">
                 <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-50 dark:bg-gray-700/50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Transaction
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Category
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Amount
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaction</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                     {transactions.map((transaction: Transaction) => (
-                      <tr key={transaction._id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {transaction.title}
-                            </div>
-                            {transaction.description && (
-                              <div className="text-sm text-gray-500 truncate max-w-xs">
-                                {transaction.description}
-                              </div>
-                            )}
-                          </div>
+                      <tr key={transaction._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/40">
+                        <td className="px-6 py-4">
+                          <div className="font-medium text-gray-900 dark:text-gray-100">{transaction.title}</div>
+                          {transaction.description && (
+                            <div className="text-sm text-gray-500 truncate">{transaction.description}</div>
+                          )}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div
-                              className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm mr-3"
-                              style={{ backgroundColor: transaction.category.color }}
-                            >
-                              {transaction.category.icon}
-                            </div>
-                            <div className="text-sm text-gray-900">
-                              {transaction.category.name}
-                            </div>
+                        <td className="px-6 py-4 flex items-center">
+                          <div
+                            className="h-8 w-8 rounded-full flex items-center justify-center text-white mr-3"
+                            style={{ backgroundColor: transaction.category.color }}
+                          >
+                            {transaction.category.icon}
                           </div>
+                          <span>{transaction.category.name}</span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className={`flex items-center text-sm font-medium ${
-                            transaction.type === 'income' ? 'text-success-600' : 'text-danger-600'
-                          }`}>
+                        <td className="px-6 py-4 font-semibold">
+                          <div
+                            className={`flex items-center ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`}
+                          >
                             {transaction.type === 'income' ? (
                               <ArrowUpRight className="h-4 w-4 mr-1" />
                             ) : (
@@ -277,34 +238,21 @@ export default function TransactionsPage() {
                             ${transaction.amount.toLocaleString()}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {format(new Date(transaction.date), 'MMM dd, yyyy')}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
-                            <button 
-                              onClick={() => handleView(transaction)}
-                              className="text-primary-600 hover:text-primary-900 p-1 rounded"
-                              title="View details"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </button>
-                            <Link
-                              href={`/dashboard/transactions/edit/${transaction._id}`}
-                              className="text-gray-600 hover:text-gray-900 p-1 rounded"
-                              title="Edit transaction"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Link>
-                            <button 
-                              onClick={() => setDeleteConfirm(transaction._id)}
-                              className="text-danger-600 hover:text-danger-900 p-1 rounded"
-                              title="Delete transaction"
-                              disabled={deleteMutation.isPending}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
+                        <td className="px-6 py-4 text-sm text-gray-500">{format(new Date(transaction.date), 'MMM dd, yyyy')}</td>
+                        <td className="px-6 py-4 flex space-x-2">
+                          <button onClick={() => handleView(transaction)} className="text-primary-600 hover:text-primary-900">
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <Link href={`/dashboard/transactions/edit/${transaction._id}`} className="text-gray-600 hover:text-gray-900">
+                            <Edit className="h-4 w-4" />
+                          </Link>
+                          <button
+                            onClick={() => setDeleteConfirm(transaction._id)}
+                            className="text-red-600 hover:text-red-900"
+                            disabled={deleteMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -312,321 +260,50 @@ export default function TransactionsPage() {
                 </table>
               </div>
 
-              {/* Pagination */}
-              {pagination && pagination.pages > 1 && (
-                <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                  <div className="flex-1 flex justify-between sm:hidden">
-                    <button
-                      onClick={() => handlePageChange(pagination.current - 1)}
-                      disabled={pagination.current === 1}
-                      className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                    <button
-                      onClick={() => handlePageChange(pagination.current + 1)}
-                      disabled={pagination.current === pagination.pages}
-                      className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </div>
-                  <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm text-gray-700">
-                        Showing{' '}
-                        <span className="font-medium">
-                          {(pagination.current - 1) * pagination.limit + 1}
-                        </span>{' '}
-                        to{' '}
-                        <span className="font-medium">
-                          {Math.min(pagination.current * pagination.limit, pagination.total)}
-                        </span>{' '}
-                        of{' '}
-                        <span className="font-medium">{pagination.total}</span>{' '}
-                        results
-                      </p>
+              {/* Mobile Layout */}
+              <div className="md:hidden space-y-4 p-4">
+                {transactions.map((transaction: Transaction) => (
+                  <div key={transaction._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-semibold text-gray-900">{transaction.title}</h4>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${transaction.type === 'income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {transaction.type === 'income' ? 'Income' : 'Expense'}
+                      </span>
                     </div>
-                    <div>
-                      <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                        <button
-                          onClick={() => handlePageChange(pagination.current - 1)}
-                          disabled={pagination.current === 1}
-                          className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Previous
-                        </button>
-                        {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
-                          const page = i + 1
-                          return (
-                            <button
-                              key={page}
-                              onClick={() => handlePageChange(page)}
-                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                page === pagination.current
-                                  ? 'z-10 bg-primary-50 border-primary-500 text-primary-600'
-                                  : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                              }`}
-                            >
-                              {page}
-                            </button>
-                          )
-                        })}
-                        <button
-                          onClick={() => handlePageChange(pagination.current + 1)}
-                          disabled={pagination.current === pagination.pages}
-                          className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Next
-                        </button>
-                      </nav>
+                    <p className="text-sm text-gray-500 mb-2">{format(new Date(transaction.date), 'MMM dd, yyyy')}</p>
+                    <p className="text-sm text-gray-700">{transaction.category.name}</p>
+                    <p className={`text-lg font-bold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
+                      ${transaction.amount.toLocaleString()}
+                    </p>
+                    <div className="mt-3 flex justify-end space-x-3">
+                      <button onClick={() => handleView(transaction)} className="text-blue-600">
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <Link href={`/dashboard/transactions/edit/${transaction._id}`} className="text-gray-600">
+                        <Edit className="h-4 w-4" />
+                      </Link>
+                      <button
+                        onClick={() => setDeleteConfirm(transaction._id)}
+                        className="text-red-600"
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
-                </div>
-              )}
+                ))}
+              </div>
             </>
           )}
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Delete Transaction
-            </h3>
-            <p className="text-sm text-gray-600 mb-6">
-              Are you sure you want to delete this transaction? This action cannot be undone.
-            </p>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                disabled={deleteMutation.isPending}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDelete(deleteConfirm)}
-                className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
-                disabled={deleteMutation.isPending}
-              >
-                {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* View Transaction Modal */}
+      {/* View Modal */}
       {viewTransaction && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-gray-900">
-                Transaction Details
-              </h3>
-              <button
-                onClick={() => setViewTransaction(null)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-
-            <div className="space-y-6">
-              {/* Transaction Header */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-lg font-medium text-gray-900">
-                    {viewTransaction.title}
-                  </h4>
-                  {viewTransaction.description && (
-                    <p className="text-gray-600 mt-1">
-                      {viewTransaction.description}
-                    </p>
-                  )}
-                </div>
-                <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  viewTransaction.type === 'income' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}>
-                  {viewTransaction.type === 'income' ? 'Income' : 'Expense'}
-                </div>
-              </div>
-
-              {/* Amount */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-500">Amount</span>
-                  <div className={`text-2xl font-bold ${
-                    viewTransaction.type === 'income' 
-                      ? 'text-green-600' 
-                      : 'text-red-600'
-                  }`}>
-                    ${viewTransaction.amount.toLocaleString()}
-                  </div>
-                </div>
-              </div>
-
-              {/* Details Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Category */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-2">
-                    Category
-                  </label>
-                  <div className="flex items-center">
-                    <div
-                      className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm mr-3"
-                      style={{ backgroundColor: viewTransaction.category.color }}
-                    >
-                      {viewTransaction.category.icon}
-                    </div>
-                    <span className="text-gray-900">
-                      {viewTransaction.category.name}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Date */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-2">
-                    Date
-                  </label>
-                  <p className="text-gray-900">
-                    {format(new Date(viewTransaction.date), 'MMMM dd, yyyy')}
-                  </p>
-                </div>
-
-                {/* Status */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-2">
-                    Status
-                  </label>
-                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                    viewTransaction.status === 'completed' 
-                      ? 'bg-green-100 text-green-800'
-                      : viewTransaction.status === 'pending'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {viewTransaction.status.charAt(0).toUpperCase() + viewTransaction.status.slice(1)}
-                  </span>
-                </div>
-
-                {/* Created At */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-2">
-                    Created
-                  </label>
-                  <p className="text-gray-900">
-                    {format(new Date(viewTransaction.createdAt), 'MMM dd, yyyy HH:mm')}
-                  </p>
-                </div>
-              </div>
-
-              {/* Tags */}
-              {viewTransaction.tags && viewTransaction.tags.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-2">
-                    Tags
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {viewTransaction.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Notes */}
-              {viewTransaction.notes && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-2">
-                    Notes
-                  </label>
-                  <p className="text-gray-900 bg-gray-50 rounded-lg p-3">
-                    {viewTransaction.notes}
-                  </p>
-                </div>
-              )}
-
-              {/* Recurring Info */}
-              {viewTransaction.isRecurring && viewTransaction.recurringPattern && (
-                <div className="bg-blue-50 rounded-lg p-4">
-                  <h5 className="font-medium text-blue-900 mb-2">Recurring Transaction</h5>
-                  <div className="text-sm text-blue-800">
-                    <p>Frequency: {viewTransaction.recurringPattern.frequency}</p>
-                    <p>Interval: Every {viewTransaction.recurringPattern.interval} {viewTransaction.recurringPattern.frequency}</p>
-                    {viewTransaction.recurringPattern.nextDueDate && (
-                      <p>Next Due: {format(new Date(viewTransaction.recurringPattern.nextDueDate), 'MMM dd, yyyy')}</p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Attachments */}
-              {viewTransaction.attachments && viewTransaction.attachments.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-500 mb-2">
-                    Attachments
-                  </label>
-                  <div className="space-y-2">
-                    {viewTransaction.attachments.map((attachment, index) => (
-                      <div key={index} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
-                        <div className="flex items-center">
-                          <FileText className="h-4 w-4 text-gray-400 mr-2" />
-                          <span className="text-sm text-gray-900">{attachment.filename}</span>
-                        </div>
-                        <a
-                          href={attachment.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary-600 hover:text-primary-800 text-sm"
-                        >
-                          View
-                        </a>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Modal Actions */}
-            <div className="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
-              <button
-                onClick={() => setViewTransaction(null)}
-                className="btn btn-secondary btn-md"
-              >
-                Close
-              </button>
-              <button
-                onClick={() => handleGeneratePDF(viewTransaction)}
-                className="btn btn-secondary btn-md inline-flex items-center"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download PDF
-              </button>
-              <Link
-                href={`/dashboard/transactions/edit/${viewTransaction._id}`}
-                className="btn btn-primary btn-md"
-                onClick={() => setViewTransaction(null)}
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Transaction
-              </Link>
-            </div>
-          </div>
-        </div>
+        <ViewTransactionModal
+          transaction={viewTransaction}
+          onClose={() => setViewTransaction(null)}
+        />
       )}
     </div>
   )

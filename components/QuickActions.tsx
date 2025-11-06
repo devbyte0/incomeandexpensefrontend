@@ -20,8 +20,8 @@ export default function QuickActions() {
       description: 'Record new expense'
     },
     {
-      name: 'View Analytics',
-      href: '/dashboard/analytics',
+      name: 'View Reports',
+      href: '/dashboard/reports',
       icon: BarChart3,
       color: 'bg-primary-500 hover:bg-primary-600',
       description: 'Check your trends'
