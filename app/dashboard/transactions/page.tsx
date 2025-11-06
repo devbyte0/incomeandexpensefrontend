@@ -302,7 +302,7 @@ console.log(categoriesData);
       {/* View Modal */}
       {viewTransaction && (
         <ViewTransactionModal
-          transaction={viewTransaction}
+          transaction= {viewTransaction}
           onClose={() => setViewTransaction(null)}
         />
       )}

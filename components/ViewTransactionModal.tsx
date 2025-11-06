@@ -1,22 +1,8 @@
 'use client'
 
 import { X } from 'lucide-react'
+import { Transaction } from '@/types'
 
-// Define attachment type
-type Attachment = { name: string; url: string }
-
-// Define transaction type
-type Transaction = {
-  title: string
-  category?: { name: string }
-  type: 'income' | 'expense'
-  amount: number
-  date: string | Date
-  notes?: string
-  attachments?: Attachment[]
-}
-
-// Props interface
 interface ViewTransactionModalProps {
   transaction: Transaction
   onClose: () => void
@@ -48,6 +34,14 @@ export default function ViewTransactionModal({
             <p className="break-words">{transaction.title}</p>
           </div>
 
+          {/* Description */}
+          {transaction.description && (
+            <div>
+              <p className="font-medium text-gray-600">Description</p>
+              <p>{transaction.description}</p>
+            </div>
+          )}
+
           {/* Category */}
           <div>
             <p className="font-medium text-gray-600">Category</p>
@@ -57,13 +51,7 @@ export default function ViewTransactionModal({
           {/* Type */}
           <div>
             <p className="font-medium text-gray-600">Type</p>
-            <p
-              className={`${
-                transaction.type === 'income'
-                  ? 'text-green-600'
-                  : 'text-red-600'
-              } capitalize`}
-            >
+            <p className={transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}>
               {transaction.type}
             </p>
           </div>
@@ -71,7 +59,7 @@ export default function ViewTransactionModal({
           {/* Amount */}
           <div>
             <p className="font-medium text-gray-600">Amount</p>
-            <p>${transaction.amount}</p>
+            <p>${transaction.amount.toLocaleString()}</p>
           </div>
 
           {/* Date */}
@@ -80,16 +68,53 @@ export default function ViewTransactionModal({
             <p>{new Date(transaction.date).toLocaleString()}</p>
           </div>
 
+          {/* Recurring info */}
+          {transaction.isRecurring && transaction.recurringPattern && (
+            <div>
+              <p className="font-medium text-gray-600">Recurring</p>
+              <p>
+                {transaction.recurringPattern.frequency} every{' '}
+                {transaction.recurringPattern.interval} time(s)
+                {transaction.recurringPattern.endDate && ` until ${new Date(transaction.recurringPattern.endDate).toLocaleDateString()}`}
+              </p>
+              {transaction.recurringPattern.nextDueDate && (
+                <p>Next Due: {new Date(transaction.recurringPattern.nextDueDate).toLocaleDateString()}</p>
+              )}
+            </div>
+          )}
+
+          {/* Status */}
+          <div>
+            <p className="font-medium text-gray-600">Status</p>
+            <p className="capitalize">{transaction.status}</p>
+          </div>
+
           {/* Notes */}
           {transaction.notes && (
             <div>
               <p className="font-medium text-gray-600">Notes</p>
-              <p className="break-words">{transaction.notes}</p>
+              <p>{transaction.notes}</p>
+            </div>
+          )}
+
+          {/* Location */}
+          {transaction.location && (
+            <div>
+              <p className="font-medium text-gray-600">Location</p>
+              <p>{transaction.location.name} ({transaction.location.coordinates.lat}, {transaction.location.coordinates.lng})</p>
+            </div>
+          )}
+
+          {/* Tags */}
+          {transaction.tags?.length > 0 && (
+            <div>
+              <p className="font-medium text-gray-600">Tags</p>
+              <p>{transaction.tags.join(', ')}</p>
             </div>
           )}
 
           {/* Attachments */}
-          {transaction.attachments?.length ? (
+          {transaction.attachments?.length > 0 && (
             <div>
               <p className="font-medium text-gray-600 mb-2">Attachments</p>
               <div className="flex flex-wrap gap-2">
@@ -101,12 +126,12 @@ export default function ViewTransactionModal({
                     rel="noopener noreferrer"
                     className="text-blue-500 underline break-words"
                   >
-                    {file.name}
+                    {file.filename}
                   </a>
                 ))}
               </div>
             </div>
-          ) : null}
+          )}
         </div>
       </div>
     </div>
