@@ -94,29 +94,7 @@ export interface DashboardAnalytics {
     categoryType: 'income' | 'expense'
     total: number
     count: number
-  }>
-  monthlyTrends: Array<{
-    _id: {
-      year: number
-      month: number
-      type: 'income' | 'expense'
-    }
-    total: number
-  }>
-  topCategories: Array<{
-    categoryName: string
-    categoryIcon: string
-    categoryColor: string
-    categoryType: 'income' | 'expense'
-    total: number
-    count: number
-  }>
-  period: {
-    startDate: string
-    endDate: string
-    type: string
-  }
-}
+  }>}
 
 export interface ApiResponse<T> {
   success: boolean

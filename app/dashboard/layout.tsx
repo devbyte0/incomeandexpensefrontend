@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import TabBar from '@/components/TabBar'
-import Header from '@/components/Header'
+
 import StarfieldBackground from '../../components/StarfieldBackground';
 import DaySkyAnimation from '../../components/DaySkyAnimation';
 
