@@ -253,7 +253,7 @@ export default function ReportsPage() {
         {/* Monthly Comparison */}
         {comparison && (
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Monthly Comparison</h3>
+            <h3 className="text-lg font-semibold dark:text-gray-100 text-gray-900 mb-6">Monthly Comparison</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="text-center">
                 <p className="text-sm text-gray-600 mb-2">Income Change</p>
@@ -296,7 +296,7 @@ export default function ReportsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Trends Chart */}
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Spending Trends</h3>
+            <h3 className="text-lg font-semibold dark:text-gray-100 text-gray-900 mb-6">Spending Trends</h3>
             <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={trendsChartData}>
@@ -340,19 +340,20 @@ export default function ReportsPage() {
 
           {/* Category Breakdown */}
           <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Category Breakdown</h3>
-            <div className="h-64 sm:h-80">
+            <h3 className="text-lg font-semibold dark:text-gray-100 text-gray-900 mb-6">Category Breakdown</h3>
+            <div className="h-64 sm:h-80 ">
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsPieChart>
                   <Pie
                     data={pieChartData}
-                    cx="50%"
+                    cx="55%"
                     cy="50%"
                     labelLine={false}
                     label={({ name, value }) => `${name}: $${value.toLocaleString()}`}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
+                    
                   >
                     {pieChartData.map((entry: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -368,52 +369,52 @@ export default function ReportsPage() {
         {/* Detailed Category Analysis */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200">
           <div className="p-4 sm:p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Detailed Category Analysis</h3>
+            <h3 className="text-lg font-semibold dark:text-gray-100 text-gray-900">Detailed Category Analysis</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium dark:bg-gray-800 dark:text-gray-100 text-gray-500 uppercase tracking-wider">
                     Category
                   </th>
-                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium dark:bg-gray-800 dark:text-gray-100 text-gray-500 uppercase tracking-wider">
                     Amount
                   </th>
-                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium dark:bg-gray-800 dark:text-gray-100 text-gray-500 uppercase tracking-wider">
                     Transactions
                   </th>
-                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium dark:bg-gray-800 dark:text-gray-100 text-gray-500 uppercase tracking-wider">
                     Average
                   </th>
-                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium dark:bg-gray-800 dark:text-gray-100 text-gray-500 uppercase tracking-wider">
                     Percentage
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {categoryAnalysis.map((category: any, index: number) => (
-                  <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                  <tr key={index} className="hover:bg-gray-50 dark:bg-gray-800">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap dark:bg-gray-800">
                       <div className="flex items-center">
                         <div 
-                          className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm mr-3"
+                          className="h-8 w-8 rounded-full flex items-center justify-center dark:bg-gray-800 text-white text-sm mr-3"
                           style={{ backgroundColor: category.categoryColor }}
                         >
                           {category.categoryIcon}
                         </div>
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                           {category.categoryName}
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-semibold dark:text-gray-100 text-gray-900">
                       ${category.total.toLocaleString()}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-100">
                       {category.count}
                     </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-100">
                       ${category.average.toFixed(0)}
                     </td>
                     <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
@@ -427,7 +428,7 @@ export default function ReportsPage() {
                             }}
                           ></div>
                         </div>
-                        <span className="text-sm text-gray-500">{category.percentage}%</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-100">{category.percentage}%</span>
                       </div>
                     </td>
                   </tr>

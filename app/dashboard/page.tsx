@@ -57,13 +57,11 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6 relative">
-      {/* Background */}
-      {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
-      {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
+      
 
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
+      <div className="z-50">
+        <h1 className="text-2xl font-bold text-gray-900  dark:text-gray-100">Dashboard</h1>
         <p className="text-gray-600 dark:text-gray-400">Welcome back! Here's your financial overview.</p>
       </div>
 

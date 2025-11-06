@@ -40,10 +40,10 @@ export default function DashboardLayout({
       {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
       {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
       
-      <div className="relative z-10 min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="relative  min-h-screen bg-gray-50 dark:bg-gray-900">
         <TabBar />
         <div className="lg:pl-64">
-          <Header />
+          
           <main className="py-4 sm:py-6 pb-20 lg:pb-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               {children}

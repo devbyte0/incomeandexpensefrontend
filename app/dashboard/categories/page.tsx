@@ -130,9 +130,7 @@ export default function CategoriesPage() {
   if (isPending) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 sm:p-6 lg:p-8 relative">
-        {/* Background Animations */}
-        {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
-        {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
+        
         
         <div className="flex items-center justify-center min-h-[60vh] relative z-10">
           <div className="text-center">

@@ -90,9 +90,7 @@ export default function TransactionsPage() {
 
   return (
     <div className="space-y-6 relative">
-      {/* Background */}
-      {user?.preferences?.theme === 'light' && <DaySkyAnimation />}
-      {user?.preferences?.theme === 'dark' && <StarfieldBackground />}
+     
 
       {/* Header Section */}
 
@@ -106,7 +104,7 @@ export default function TransactionsPage() {
     <input
       type="text"
       placeholder="Search transactions..."
-      className="input pl-10 w-full"
+      className="input pl-10 w-full  dark:text-gray-100 dark:bg-gray-700/50"
       value={filters.search}
       onChange={(e) => handleFilterChange('search', e.target.value)}
     />
@@ -146,7 +144,7 @@ export default function TransactionsPage() {
 
   {/* Type Filter */}
   <select
-    className="input col-span-1 md:col-span-1 w-full"
+    className="input col-span-1 md:col-span-1 w-full dark:bg-gray-700/50 dark:text-gray-100"
     value={filters.type}
     onChange={(e) => handleFilterChange('type', e.target.value)}
   >
@@ -158,13 +156,13 @@ export default function TransactionsPage() {
   {/* Date Filters */}
   <input
     type="date"
-    className="input col-span-1 md:col-span-1 w-full"
+    className="input col-span-1 md:col-span-1 w-full dark:text-gray-100 dark:bg-gray-700/50"
     value={filters.startDate}
     onChange={(e) => handleFilterChange('startDate', e.target.value)}
   />
   <input
     type="date"
-    className="input col-span-1 md:col-span-1 w-full"
+    className="input col-span-1 md:col-span-1 w-full dark:text-gray-100 dark:bg-gray-700/50 "
     value={filters.endDate}
     onChange={(e) => handleFilterChange('endDate', e.target.value)}
   />
@@ -172,7 +170,7 @@ export default function TransactionsPage() {
   {/* Clear Filters Button */}
   <button
     onClick={handleClearFilters}
-    className="btn btn-secondary btn-md col-span-1 md:col-span-1 w-full"
+    className="btn btn-secondary btn-md col-span-1 md:col-span-1 w-full "
   >
     Clear Filters
   </button>
@@ -201,11 +199,11 @@ export default function TransactionsPage() {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50 dark:bg-gray-700/50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaction</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-100 uppercase">Transaction</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-100 uppercase">Category</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-100 uppercase">Amount</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-100 uppercase">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-100 uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
@@ -224,7 +222,7 @@ export default function TransactionsPage() {
                           >
                             {transaction.category.icon}
                           </div>
-                          <span>{transaction.category.name}</span>
+                          <span className=' dark:text-gray-100'>{transaction.category.name}</span>
                         </td>
                         <td className="px-6 py-4 font-semibold">
                           <div
@@ -238,13 +236,13 @@ export default function TransactionsPage() {
                             ${transaction.amount.toLocaleString()}
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">{format(new Date(transaction.date), 'MMM dd, yyyy')}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500  dark:text-gray-100">{format(new Date(transaction.date), 'MMM dd, yyyy')}</td>
                         <td className="px-6 py-4 flex space-x-2">
                           <button onClick={() => handleView(transaction)} className="text-primary-600 hover:text-primary-900">
                             <Eye className="h-4 w-4" />
                           </button>
                           <Link href={`/dashboard/transactions/edit/${transaction._id}`} className="text-gray-600 hover:text-gray-900">
-                            <Edit className="h-4 w-4" />
+                            <Edit className="h-4 w-4  dark:text-gray-100" />
                           </Link>
                           <button
                             onClick={() => setDeleteConfirm(transaction._id)}
