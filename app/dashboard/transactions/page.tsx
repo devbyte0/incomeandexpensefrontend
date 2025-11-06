@@ -74,8 +74,11 @@ export default function TransactionsPage() {
       toast.error('No transactions to print')
       return
     }
-    const categoriesData = transactions.map(tx => tx.category)
-    console.log(categoriesData) // or however you fetch it
+    const categoriesData = Array.isArray(transactions)
+  ? transactions.map(t => t.category)
+  : [];
+console.log(categoriesData);
+
 
    const pdfData = formatDataForPDF(
   null,
