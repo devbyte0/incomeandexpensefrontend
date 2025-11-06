@@ -2,7 +2,30 @@
 
 import { X } from 'lucide-react'
 
-export default function ViewTransactionModal({ transaction, onClose }) {
+// Define attachment type
+type Attachment = { name: string; url: string }
+
+// Define transaction type
+type Transaction = {
+  title: string
+  category?: { name: string }
+  type: 'income' | 'expense'
+  amount: number
+  date: string | Date
+  notes?: string
+  attachments?: Attachment[]
+}
+
+// Props interface
+interface ViewTransactionModalProps {
+  transaction: Transaction
+  onClose: () => void
+}
+
+export default function ViewTransactionModal({
+  transaction,
+  onClose,
+}: ViewTransactionModalProps) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-3 sm:px-4">
       <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6 relative shadow-lg">
@@ -19,16 +42,19 @@ export default function ViewTransactionModal({ transaction, onClose }) {
         </h2>
 
         <div className="space-y-4 text-sm sm:text-base">
+          {/* Title */}
           <div>
             <p className="font-medium text-gray-600">Title</p>
             <p className="break-words">{transaction.title}</p>
           </div>
 
+          {/* Category */}
           <div>
             <p className="font-medium text-gray-600">Category</p>
             <p>{transaction.category?.name || '-'}</p>
           </div>
 
+          {/* Type */}
           <div>
             <p className="font-medium text-gray-600">Type</p>
             <p
@@ -42,16 +68,19 @@ export default function ViewTransactionModal({ transaction, onClose }) {
             </p>
           </div>
 
+          {/* Amount */}
           <div>
             <p className="font-medium text-gray-600">Amount</p>
             <p>${transaction.amount}</p>
           </div>
 
+          {/* Date */}
           <div>
             <p className="font-medium text-gray-600">Date</p>
             <p>{new Date(transaction.date).toLocaleString()}</p>
           </div>
 
+          {/* Notes */}
           {transaction.notes && (
             <div>
               <p className="font-medium text-gray-600">Notes</p>
@@ -59,7 +88,8 @@ export default function ViewTransactionModal({ transaction, onClose }) {
             </div>
           )}
 
-          {transaction.attachments?.length > 0 && (
+          {/* Attachments */}
+          {transaction.attachments?.length ? (
             <div>
               <p className="font-medium text-gray-600 mb-2">Attachments</p>
               <div className="flex flex-wrap gap-2">
@@ -76,7 +106,7 @@ export default function ViewTransactionModal({ transaction, onClose }) {
                 ))}
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
