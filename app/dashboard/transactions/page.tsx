@@ -248,7 +248,7 @@ console.log(categoriesData);
                             <Edit className="h-4 w-4  dark:text-gray-100" />
                           </Link>
                           <button
-                            onClick={() => setDeleteConfirm(transaction._id)}
+                            onClick={() => handleDelete(transaction._id)}
                             className="text-red-600 hover:text-red-900"
                             disabled={deleteMutation.isPending}
                           >
@@ -284,7 +284,7 @@ console.log(categoriesData);
                         <Edit className="h-4 w-4" />
                       </Link>
                       <button
-                        onClick={() => setDeleteConfirm(transaction._id)}
+                        onClick={() => handleDelete(transaction._id)}
                         className="text-red-600"
                         disabled={deleteMutation.isPending}
                       >
